@@ -1,0 +1,34 @@
+# Archivos temporales y de configuración local de Visual Studio
+.vs/
+*.user
+*.suo
+*.db
+*.opendb
+*.VC.db
+
+# Carpetas de compilación (Binarios)
+Debug/
+Release/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Archivos de compilación de C++
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.lib
+*.dll
+*.exp
+
+# Paquetes descargados por NuGet (Allegro)
+packages/
+!packages/repositories.config
+
+# Archivos de caché
+*.cache
+*.tlog
+*.log
+

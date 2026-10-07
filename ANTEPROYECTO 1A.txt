@@ -1,0 +1,38 @@
+﻿ANTEPROYECTO 1A: FASE ORBITAL
+Curso: Estructuras de Datos IC-2001
+Integrantes:
+1. Luis Carlos Fuentes Calvo
+2. Marco Esteban Perez Ramos
+3. Elian Esteban Montero Valverde
+a) Listado proyectado de las principales estructuras de datos
+* ListaEnemigos: Va a ser una lista doblemente enlazada, con un puntero a la cabeza y otro a la cola. La vamos a utilizar para guardar y controlar los enemigos que se encuentren vivos durante la partida. Algunas de sus operaciones principales van a ser insertarFinal, insertarDespues y eliminar. La operación de insertar después de un nodo será útil principalmente cuando un enemigo Divisor genere a los Minis.
+* ListaBalas: Será una lista simplemente enlazada que vamos a utilizar para guardar las balas que se encuentren activas en el mapa. Entre sus operaciones principales estarán insertarInicio y eliminar. La idea de insertar al inicio es poder agregar nuevas balas de una forma sencilla y rápida.
+* ColaSpawn: Será una cola con punteros al frente y al final. Se utilizará para controlar el orden en que van apareciendo los enemigos durante cada oleada. Sus operaciones principales serán encolar, desencolar, consultar el elemento que se encuentra al frente y realizar una copia profunda de la cola cuando sea necesario conservar la información original.
+* ListaCircular: Será una lista circular doblemente enlazada. Se utilizará en las partes del juego donde sea necesario realizar recorridos continuos en ambos sentidos. Sus operaciones principales serán agregar, avanzar, cambiar el sentido del recorrido y eliminarActual.
+* BitacoraEventos: Será una lista simplemente enlazada que se utilizará para ir guardando los eventos importantes que ocurran durante una partida. Su operación principal será agregar eventos al final y recorrer la lista cuando sea necesario consultar la información.
+* HistorialPartidas: También será una lista simplemente enlazada. Se utilizará para almacenar la información de partidas anteriores que se cargue desde el archivo CSV. Tendrá operaciones para agregar información y recorrer los datos para obtener las estadísticas.
+* Ranking: Será una lista simplemente enlazada ordenada, utilizada para guardar los mejores puntajes obtenidos. Su operación principal será insertarOrdenado, de manera que los puntajes queden acomodados y se pueda mantener el top 10.
+b) Listado de los principales algoritmos
+* Eliminación durante el recorrido: Este algoritmo nos permitirá eliminar enemigos o balas mientras estamos recorriendo una lista. Se debe guardar correctamente la referencia al siguiente nodo antes de eliminar el actual para no perder parte de la lista ni dejar punteros apuntando a memoria que ya fue liberada.
+* Inserción después de un nodo: Se utilizará principalmente con el enemigo Divisor. Cuando este enemigo sea eliminado, se deberán insertar los dos Minis cerca de la posición que ocupaba dentro de la lista. Para hacerlo se deben conservar las referencias necesarias antes de eliminar el nodo original.
+* Copia profunda de la cola: Este algoritmo permitirá realizar una copia independiente de una cola. Para esto se recorrerá la cola original y se crearán nodos nuevos utilizando memoria dinámica, evitando que las dos colas compartan los mismos nodos.
+* Rotación y eliminación en la lista circular: Se recorrerá la lista circular hacia adelante o hacia atrás dependiendo del sentido actual. También se podrá eliminar el nodo actual manteniendo correctamente las conexiones entre los nodos anteriores y siguientes para que la lista continúe siendo circular.
+* Heurística del bot: El bot tendrá que recorrer la lista de enemigos para decidir a cuál atacar. La idea inicial es buscar al enemigo que se encuentre más cerca del núcleo, tomando en cuenta su radio y seleccionando el que represente una mayor amenaza. Después de encontrarlo, el bot podrá orientar sus disparos hacia ese enemigo.
+* Merge Sort sobre lista: Para ordenar los datos del historial vamos a implementar Merge Sort directamente sobre una lista enlazada, sin pasar los datos a un arreglo. El algoritmo dividirá la lista en partes más pequeñas y luego las irá uniendo nuevamente de forma ordenada.
+* Cálculo de la mediana: Después de ordenar los datos, se recorrerá la lista para encontrar el valor que se encuentre en el centro. Si hay una cantidad impar de datos se toma el elemento central y, si hay una cantidad par, se obtiene el promedio de los dos elementos centrales.
+* Cálculo de la desviación estándar: Primero se calculará el promedio de los datos y después se recorrerá nuevamente la lista para calcular qué tanto se aleja cada valor de ese promedio. Con estos resultados se podrá obtener la desviación estándar de las estadísticas de las partidas.
+* Inserción ordenada para el ranking: Cuando se obtenga un nuevo puntaje, se recorrerá la lista hasta encontrar la posición donde debe insertarse. De esta manera el ranking se mantendrá ordenado sin tener que ordenar toda la lista cada vez que se agregue un nuevo resultado.
+c) Plan de desarrollo
+Para desarrollar el proyecto vamos a dividir el trabajo entre los tres integrantes, tratando de avanzar en paralelo en las diferentes partes.
+* 3 al 8 de octubre: Desarrollo de las estructuras de datos principales, incluyendo listas, colas y sus respectivos nodos. También se realizarán pruebas para revisar que la memoria dinámica se esté manejando correctamente.
+Responsable: Luis Carlos Fuentes Calvo y revisión de los otros integrantes.
+* 9 al 14 de octubre: Desarrollo de la lógica principal del juego, incluyendo el movimiento de los enemigos, generación de oleadas, disparos, pulso y comportamiento de los diferentes tipos de enemigos.
+Responsable: Marco Esteban Perez Ramos.
+* 15 al 20 de octubre: Desarrollo e integración de la parte gráfica utilizando Allegro 5. Se trabajará con el timer del juego, dibujo de los elementos en pantalla, controles y sonidos.
+Responsable: Elian Esteban Montero Valverde y revisión de los otros integrantes.
+* 21 al 25 de octubre: Desarrollo de la heurística del bot, manejo de la cola de aparición de enemigos y persistencia mediante archivos CSV para guardar y cargar el historial de las partidas. También se realizará la integración de estas partes con el resto del juego.
+Responsables: Luis Carlos Fuentes Calvo y Marco Esteban Perez Ramos Calvo y revisión de Elian Montero Valverde.
+* 26 al 28 de octubre: Desarrollo del módulo de estadísticas, incluyendo Merge Sort, mediana, desviación estándar y ranking. También se realizarán pruebas generales, corrección de errores y preparación de la documentación técnica y de usuario.
+Responsables: Los tres integrantes.
+* 29 de octubre: Realización de las últimas pruebas del proyecto, preparación y grabación del video de defensa final.
+Responsables: Los tres integrantes.
