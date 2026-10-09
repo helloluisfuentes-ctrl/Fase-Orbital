@@ -21,9 +21,21 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ListaBalas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ListaEnemigos.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Estructuras.h">
+    <ClInclude Include="ListaBalas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ListaEnemigos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Globales.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

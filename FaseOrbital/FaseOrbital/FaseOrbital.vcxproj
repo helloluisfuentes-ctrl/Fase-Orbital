@@ -202,10 +202,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ListaBalas.cpp" />
+    <ClCompile Include="ListaEnemigos.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Estructuras.h" />
+    <ClInclude Include="Globales.h" />
+    <ClInclude Include="ListaBalas.h" />
+    <ClInclude Include="ListaEnemigos.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
