@@ -3,56 +3,47 @@
 
 
 //Inicializa la lista
-void InicializarListaBalas(ListaBalas& lista) {
-	lista.cabeza = NULL;
-	lista.tam = 0;
+ListaBalas::ListaBalas() {
+	cabeza = NULL; 
+	tam = 0;
 }
 
 
 
 //Destruye toda la lista
-void DestruirListaBalas(ListaBalas& lista) {
-
-	PtrNodoBala aux;
-	aux = lista.cabeza;
-
-	while (aux != NULL)
-	{
-		lista.cabeza = lista.cabeza->siguiente;
-		delete(aux);
-		aux = lista.cabeza;
+ListaBalas::~ListaBalas() {
+	NodoBala* aux = cabeza;
+	while (aux != NULL) {
+		cabeza = cabeza->siguiente;
+		delete aux;
+		aux = cabeza;
 	}
-
-	lista.tam = 0;
+	tam = 0;
 }
 
 
 
 //Agrega una bala al inicio de la lista
-void AgregarInicioListaBalas(ListaBalas& lista, PtrNodoBala& nuevo)
-{
-	nuevo->siguiente = lista.cabeza;
-	lista.cabeza = nuevo;
-	lista.tam++;
+void ListaBalas::agregarInicio(NodoBala* nuevo) {
+	nuevo->siguiente = cabeza;
+	cabeza = nuevo;
+	tam++;
 }
 
 
 
 //Elimina las balas de la lista que cumplan la condicion
-void EliminarBalasSi(ListaBalas& lista, bool (*condicion)(Bala)) {
+void ListaBalas::eliminarSi(bool (*condicion)(Bala)) {
 
-	//puntero a puntero
-	PtrNodoBala* ptrActual = &lista.cabeza;
-
-	while (ptrActual != NULL) {
-
+	NodoBala** ptrActual = &cabeza; //puntero a puntero
+	
+	while (*ptrActual != NULL) {
 		if (condicion((*ptrActual)->bala)) {
 
-			//Eliminamos el nodo bala y continuamos
-			PtrNodoBala ptrKiller = *ptrActual;	//killer no es igual ptrActual, es igua a lo que ptrActual apunta
+			NodoBala* ptrKiller = *ptrActual;
 			*ptrActual = ptrKiller->siguiente;
 			delete ptrKiller;
-			lista.tam--;
+			tam--;
 		}
 		else {
 			ptrActual = &((*ptrActual)->siguiente);
@@ -65,6 +56,6 @@ void EliminarBalasSi(ListaBalas& lista, bool (*condicion)(Bala)) {
 	    return (b.cord_x > 320 || b.cord_y > 320);
 	}
 
-	EliminarBalasSi(cabeza_balas, balaFueraDelMapa);
+	EliminarSi(balaFueraDelMapa);
 
 */

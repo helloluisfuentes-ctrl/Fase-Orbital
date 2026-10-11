@@ -22,29 +22,36 @@ typedef struct NodoBala {
 	NodoBala* siguiente = NULL;
 }*PtrNodoBala;
 
-typedef struct ListaBalas {
-	PtrNodoBala cabeza;
-	int tam;
+class ListaBalas {
+
+private:
+    NodoBala* cabeza;
+    int tam;
+
+public:
+    //Constructor
+    ListaBalas();
+
+    //Destructor
+    ~ListaBalas();
+
+    //Regla de Tres, se usa delete porque aqui no en necesario complicarse con una copia profunda
+    //constructor de copias
+    ListaBalas(const ListaBalas&) = delete;
+    //operador de asignacion
+    ListaBalas& operator=(const ListaBalas&) = delete;
+   
+    //metodos (
+    void agregarInicio(NodoBala* nuevo);
+    void eliminarSi(bool (*condicion)(Bala));
+    
+    //getters
+    int tamano() const { return tam; }
+    bool vacia() const { return cabeza == NULL; }
+    NodoBala* obtenerCabeza() const { return cabeza; }
 };
 
 
-//Inicializa la lista
-void InicializarListaBalas(ListaBalas &lista);
-
-
-
-//Destruye toda la lista
-void DestruirListaBalas(ListaBalas &lista);
-
-
-
-//Agrega una bala al inicio de la lista
-void AgregarInicioListaBalas(ListaBalas &lista, PtrNodoBala &nuevo);
-
-
-
-//Elimina las balas de la lista que cumplan la condicion
-void EliminarBalasSi(ListaBalas &lista, bool (*condicion)(Bala));
 
 /*uso ejemplo:
 

@@ -208,6 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Globales.h" />
+    <ClInclude Include="ColaSpawn.h" />
     <ClInclude Include="ListaBalas.h" />
     <ClInclude Include="ListaEnemigos.h" />
   </ItemGroup>

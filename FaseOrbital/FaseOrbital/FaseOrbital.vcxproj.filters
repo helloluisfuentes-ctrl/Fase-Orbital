@@ -38,5 +38,8 @@
     <ClInclude Include="Globales.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ColaSpawn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

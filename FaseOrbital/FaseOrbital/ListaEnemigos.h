@@ -18,39 +18,38 @@ struct Enemigo {
     int ticksColor;  // para el camaleon
 };
 
-typedef struct NodoEnemigo {
+struct NodoEnemigo {
     Enemigo enemigo;
     NodoEnemigo* siguiente = NULL;
     NodoEnemigo* anterior = NULL;
 }*PtrNodoEnemigo;
 
-typedef struct ListaEnemigos {
+class ListaEnemigos {
+private:
     NodoEnemigo* cabeza;
     NodoEnemigo* cola;
     int tam;
+
+public:
+    //Constructor y Destructor
+    ListaEnemigos();
+    ~ListaEnemigos();
+
+    //Regla de Tres
+    ListaEnemigos(const ListaEnemigos&) = delete;
+    ListaEnemigos& operator=(const ListaEnemigos&) = delete;
+
+    //metodos
+    void insertarFinal(NodoEnemigo* nuevo);
+    void insertarDespues(NodoEnemigo* nodoAnterior, NodoEnemigo* nuevo);
+    NodoEnemigo* eliminar(NodoEnemigo* nodoABorrar);
+
+    
+    NodoEnemigo* primero() const { return cabeza; }
+    NodoEnemigo* ultimo() const { return cola; }
+    int tamano() const { return tam; }
+    bool vacia() const { return cabeza == NULL; }
 };
 
 
 
-//Inicializa la lista
-void InicializarListaEnemigos(ListaEnemigos &lista);
-
-
-
-//Destruye toda la lista
-void DestruirListaEnemigos(ListaEnemigos &lista);
-
-
-
-//Inserta un nuevo nodo al final
-void InsertarFinalListaEnemigos(ListaEnemigos &lista, PtrNodoEnemigo nuevo);
-
-
-
-//Inserta un nodo despues del nodo dado
-void InsertarDespuesDe(ListaEnemigos &lista, PtrNodoEnemigo NodoAnterior, PtrNodoEnemigo nuevo);
-
-
-
-//Elimina un nodo de la lista
-PtrNodoEnemigo EliminarNodoListaEnemigos(ListaEnemigos& lista, PtrNodoEnemigo nodoABorrar);
