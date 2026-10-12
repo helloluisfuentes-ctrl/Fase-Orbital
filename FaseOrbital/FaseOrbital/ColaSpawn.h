@@ -1,7 +1,7 @@
 #pragma once
-#include "ListaEnemigos.h" 
+#include "Globales.h"      // Para Color y TipoEnemigo
 
-// Los datos de cuándo y cómo nacerá el enemigo
+
 struct Spawn {
     int tick;
     TipoEnemigo tipo;
@@ -10,22 +10,32 @@ struct Spawn {
     int sentido; // 0 = horario, 1 = antihorario (solo para Girador)
 };
 
-typedef struct NodoSpawn {
+struct NodoSpawn {
     Spawn dato;
-    NodoSpawn* sig;
-}*PtrNodoSpawn;
-
-
-typedef struct ColaSpawn {
-    PtrNodoSpawn frente;
-    PtrNodoSpawn final;
-    int tam;
+    NodoSpawn* siguiente = NULL;
 };
 
+class ColaSpawn {
+private:
+    NodoSpawn* cabeza;
+    NodoSpawn* cola;
+    int tam;
 
-void InicializarCola(ColaSpawn& cola);
-void DestruirCola(ColaSpawn& cola);
-void Encolar(ColaSpawn& cola, Spawn nuevoSpawn);
-bool Desencolar(ColaSpawn& cola, Spawn& spawnSaliente);
-bool ColaVacia(ColaSpawn& cola);
-void CopiarColaProfunda(ColaSpawn& origen, ColaSpawn& destino);
+public:
+    // Constructor y Destructor
+    ColaSpawn();
+    ~ColaSpawn();
+
+    
+    ColaSpawn(const ColaSpawn& otra);                // Constructor de copia
+    ColaSpawn& operator=(const ColaSpawn& otra);     // Operador de asignación
+
+    // Operaciones básicas de una Cola 
+    void encolar(const Spawn& s);
+    bool desencolar(Spawn& out);
+    const Spawn* verFrente() const;
+
+    // Consultas
+    bool vacia() const { return cabeza == NULL; }
+    int tamano() const { return tam; }
+};

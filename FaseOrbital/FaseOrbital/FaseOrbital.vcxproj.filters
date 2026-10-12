@@ -27,6 +27,9 @@
     <ClCompile Include="ListaEnemigos.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ColaSpawn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ListaBalas.h">

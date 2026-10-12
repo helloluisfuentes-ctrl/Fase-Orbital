@@ -1,14 +1,10 @@
 #pragma once
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "Globales.h"
 
 
 // --- Lista de balas ---
 
-typedef struct Bala {
+struct Bala {
 	double cord_x;
 	double cord_y;
 	double speed_x;
@@ -17,10 +13,10 @@ typedef struct Bala {
 	int duenio;
 };
 
-typedef struct NodoBala {
+struct NodoBala {
 	Bala bala;
 	NodoBala* siguiente = NULL;
-}*PtrNodoBala;
+};
 
 class ListaBalas {
 
