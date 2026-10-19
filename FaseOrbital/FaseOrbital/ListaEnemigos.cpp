@@ -26,7 +26,7 @@ ListaEnemigos::~ListaEnemigos() {
 
 
 //Inserta un nuevo nodo al final
-void ListaEnemigos::insertarFinal(NodoEnemigo* nuevo) {
+void ListaEnemigos::InsertarFinal(NodoEnemigo* nuevo) {
 	tam++;
 	if (cabeza == NULL) {
 		cabeza = nuevo;
@@ -40,7 +40,7 @@ void ListaEnemigos::insertarFinal(NodoEnemigo* nuevo) {
 }
 
 //Inserta un nodo despues del nodo dado
-void ListaEnemigos::insertarDespues(NodoEnemigo* nodoAnterior, NodoEnemigo* nuevo) {
+void ListaEnemigos::InsertarDespues(NodoEnemigo* nodoAnterior, NodoEnemigo* nuevo) {
 	if (nodoAnterior == NULL || nuevo == NULL) return;
 	nuevo->anterior = nodoAnterior;
 	nuevo->siguiente = nodoAnterior->siguiente;
@@ -55,7 +55,7 @@ void ListaEnemigos::insertarDespues(NodoEnemigo* nodoAnterior, NodoEnemigo* nuev
 }
 
 //Elimina un nodo de la lista
-NodoEnemigo* ListaEnemigos::eliminar(NodoEnemigo* nodoABorrar) {
+NodoEnemigo* ListaEnemigos::Eliminar(NodoEnemigo* nodoABorrar) {
 	if (nodoABorrar == NULL) return NULL;
 	NodoEnemigo* nodoSiguiente = NULL;
 	if (cabeza == cola) {

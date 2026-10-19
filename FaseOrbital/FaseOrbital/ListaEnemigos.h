@@ -38,15 +38,14 @@ public:
     ListaEnemigos& operator=(const ListaEnemigos&) = delete;
 
     //metodos
-    void insertarFinal(NodoEnemigo* nuevo);
-    void insertarDespues(NodoEnemigo* nodoAnterior, NodoEnemigo* nuevo);
-    NodoEnemigo* eliminar(NodoEnemigo* nodoABorrar);
+    void InsertarFinal(NodoEnemigo* nuevo);
+    void InsertarDespues(NodoEnemigo* nodoAnterior, NodoEnemigo* nuevo);
+    NodoEnemigo* Eliminar(NodoEnemigo* nodoABorrar);
 
-    
-    NodoEnemigo* primero() const { return cabeza; }
-    NodoEnemigo* ultimo() const { return cola; }
-    int tamano() const { return tam; }
-    bool vacia() const { return cabeza == NULL; }
+    NodoEnemigo* Primero() const { return cabeza; }
+    NodoEnemigo* Ultimo() const { return cola; }
+    int Tamano() const { return tam; }
+    bool Vacia() const { return cabeza == NULL; }
 };
 
 

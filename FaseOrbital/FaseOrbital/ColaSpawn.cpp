@@ -33,7 +33,7 @@ ColaSpawn::ColaSpawn(const ColaSpawn& otra) {
 
     //Copiar la cola nodo por nodo
     while (aux != NULL) {
-        encolar(aux->dato);
+        Encolar(aux->dato);
         aux = aux->siguiente;
     }
 }
@@ -58,7 +58,7 @@ ColaSpawn& ColaSpawn::operator=(const ColaSpawn& otra) {
     //Copiar profundamente los nodos de 'otra'
     NodoSpawn* aux = otra.cabeza;
     while (aux != NULL) {
-        encolar(aux->dato);
+        Encolar(aux->dato);
         aux = aux->siguiente;
     }
 
@@ -68,12 +68,12 @@ ColaSpawn& ColaSpawn::operator=(const ColaSpawn& otra) {
 
 
 // añade al final
-void ColaSpawn::encolar(const Spawn& s) {
+void ColaSpawn::Encolar(const Spawn& s) {
     NodoSpawn* nuevo = new NodoSpawn();
     nuevo->dato = s;
     nuevo->siguiente = nullptr;
 
-    if (vacia()) {
+    if (Vacia()) {
         cabeza = nuevo;
         cola = nuevo;
     }
@@ -86,9 +86,9 @@ void ColaSpawn::encolar(const Spawn& s) {
 
 
 // devuelve el primer nodo en "Out"
-bool ColaSpawn::desencolar(Spawn& out) {
+bool ColaSpawn::Desencolar(Spawn& out) {
 
-    if (vacia()) {
+    if (Vacia()) {
         return false;
     }
 
@@ -98,7 +98,7 @@ bool ColaSpawn::desencolar(Spawn& out) {
     delete(aux);
     tam--;
 
-    if (vacia()) {
+    if (Vacia()) {
         cola = NULL;
     }
 
@@ -106,8 +106,8 @@ bool ColaSpawn::desencolar(Spawn& out) {
 }
 
 //manda un solo leer del primer nodo
-const Spawn* ColaSpawn::verFrente() const {
-    if (vacia()) {
+const Spawn* ColaSpawn::VerFrente() const {
+    if (Vacia()) {
         return NULL;
     }
 

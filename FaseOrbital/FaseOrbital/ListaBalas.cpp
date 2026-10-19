@@ -24,7 +24,7 @@ ListaBalas::~ListaBalas() {
 
 
 //Agrega una bala al inicio de la lista
-void ListaBalas::agregarInicio(NodoBala* nuevo) {
+void ListaBalas::AgregarInicio(NodoBala* nuevo) {
 	nuevo->siguiente = cabeza;
 	cabeza = nuevo;
 	tam++;
@@ -33,7 +33,7 @@ void ListaBalas::agregarInicio(NodoBala* nuevo) {
 
 
 //Elimina las balas de la lista que cumplan la condicion
-void ListaBalas::eliminarSi(bool (*condicion)(Bala)) {
+void ListaBalas::EliminarSi(bool (*condicion)(Bala)) {
 
 	NodoBala** ptrActual = &cabeza; //puntero a puntero
 	

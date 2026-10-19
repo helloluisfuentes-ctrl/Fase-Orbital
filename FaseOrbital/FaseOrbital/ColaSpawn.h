@@ -31,11 +31,11 @@ public:
     ColaSpawn& operator=(const ColaSpawn& otra);     // Operador de asignación
 
     // Operaciones básicas de una Cola 
-    void encolar(const Spawn& s);
-    bool desencolar(Spawn& out);
-    const Spawn* verFrente() const;
+    void Encolar(const Spawn& s);
+    bool Desencolar(Spawn& out);
+    const Spawn* VerFrente() const;
 
     // Consultas
-    bool vacia() const { return cabeza == NULL; }
-    int tamano() const { return tam; }
+    bool Vacia() const { return cabeza == NULL; }
+    int Tamano() const { return tam; }
 };

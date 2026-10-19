@@ -37,14 +37,14 @@ public:
     //operador de asignacion
     ListaBalas& operator=(const ListaBalas&) = delete;
    
-    //metodos (
-    void agregarInicio(NodoBala* nuevo);
-    void eliminarSi(bool (*condicion)(Bala));
+    //metodos
+    void AgregarInicio(NodoBala* nuevo);
+    void EliminarSi(bool (*condicion)(Bala));
     
     //getters
-    int tamano() const { return tam; }
-    bool vacia() const { return cabeza == NULL; }
-    NodoBala* obtenerCabeza() const { return cabeza; }
+    int Tamano() const { return tam; }
+    bool Vacia() const { return cabeza == NULL; }
+    NodoBala* ObtenerCabeza() const { return cabeza; }
 };
 
 
