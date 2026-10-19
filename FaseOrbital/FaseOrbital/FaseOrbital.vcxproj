@@ -206,12 +206,14 @@
     <ClCompile Include="ListaBalas.cpp" />
     <ClCompile Include="ListaEnemigos.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="RondaJugadores.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Globales.h" />
     <ClInclude Include="ColaSpawn.h" />
     <ClInclude Include="ListaBalas.h" />
     <ClInclude Include="ListaEnemigos.h" />
+    <ClInclude Include="RondaJugadores.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
