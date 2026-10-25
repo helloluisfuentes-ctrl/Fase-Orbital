@@ -204,6 +204,7 @@
   <ItemGroup>
     <ClCompile Include="BitacoraEventos.cpp" />
     <ClCompile Include="ColaSpawn.cpp" />
+    <ClCompile Include="HistorialPartidas.cpp" />
     <ClCompile Include="ListaBalas.cpp" />
     <ClCompile Include="ListaEnemigos.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="BitacoraEventos.h" />
     <ClInclude Include="Globales.h" />
     <ClInclude Include="ColaSpawn.h" />
+    <ClInclude Include="HistorialPartidas.h" />
     <ClInclude Include="ListaBalas.h" />
     <ClInclude Include="ListaEnemigos.h" />
     <ClInclude Include="Ranking.h" />

@@ -39,6 +39,9 @@
     <ClCompile Include="Ranking.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HistorialPartidas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ListaBalas.h">
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Ranking.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HistorialPartidas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
