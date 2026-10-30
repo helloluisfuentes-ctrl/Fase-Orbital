@@ -68,5 +68,8 @@
     <ClInclude Include="HistorialPartidas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Generador.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

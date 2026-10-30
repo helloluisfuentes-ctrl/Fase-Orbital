@@ -28,7 +28,7 @@ bool BalaFueraDeRango(Bala b) {
 }
 
 int main() {
-    // 1. Inicialización de Allegro
+    //Inicialización de Allegro
     if (!al_init()) return -1;
     if (!al_init_primitives_addon()) return -1;
     if (!al_install_keyboard()) return -1;

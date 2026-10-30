@@ -213,6 +213,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitacoraEventos.h" />
+    <ClInclude Include="Generador.h" />
     <ClInclude Include="Globales.h" />
     <ClInclude Include="ColaSpawn.h" />
     <ClInclude Include="HistorialPartidas.h" />
