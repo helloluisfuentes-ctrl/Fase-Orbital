@@ -203,6 +203,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BitacoraEventos.cpp" />
+    <ClCompile Include="Bot.cpp" />
     <ClCompile Include="ColaSpawn.cpp" />
     <ClCompile Include="HistorialPartidas.cpp" />
     <ClCompile Include="ListaBalas.cpp" />
@@ -213,6 +214,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitacoraEventos.h" />
+    <ClInclude Include="Bot.h" />
     <ClInclude Include="Generador.h" />
     <ClInclude Include="Globales.h" />
     <ClInclude Include="ColaSpawn.h" />
