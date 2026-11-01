@@ -20,7 +20,7 @@ struct NodoEnemigo {
     Enemigo enemigo;
     NodoEnemigo* siguiente = NULL;
     NodoEnemigo* anterior = NULL;
-}*PtrNodoEnemigo;
+};
 
 class ListaEnemigos {
 private:
