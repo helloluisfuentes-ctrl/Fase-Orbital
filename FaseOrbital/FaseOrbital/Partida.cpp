@@ -111,7 +111,7 @@ void Partida::FinalizarTurnoActual(bool sobrevivio) {
 // 2. Mayor oleada alcanzada
 // 3. Mayor precisión
 Jugador* Partida::DeterminarGanador(Jugador* todosLosRegistrados[], int totalRegistrados) const {
-    if (totalRegistrados <= 0) return nullptr;
+    if (totalRegistrados <= 0) return NULL;
 
     Jugador* ganador = todosLosRegistrados[0];
 

@@ -71,7 +71,7 @@ ColaSpawn& ColaSpawn::operator=(const ColaSpawn& otra) {
 void ColaSpawn::Encolar(const Spawn& s) {
     NodoSpawn* nuevo = new NodoSpawn();
     nuevo->dato = s;
-    nuevo->siguiente = nullptr;
+    nuevo->siguiente = NULL;
 
     if (Vacia()) {
         cabeza = nuevo;

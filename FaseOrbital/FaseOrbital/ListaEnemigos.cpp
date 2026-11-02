@@ -3,6 +3,7 @@
 
 
 //Inicializa la lista
+
 ListaEnemigos::ListaEnemigos() {
 	cabeza = NULL;
 	cola = NULL;

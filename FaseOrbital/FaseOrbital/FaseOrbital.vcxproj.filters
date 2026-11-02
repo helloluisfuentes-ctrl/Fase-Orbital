@@ -51,6 +51,9 @@
     <ClCompile Include="Oleada.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Pruebas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ListaBalas.h">
@@ -87,6 +90,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Oleada.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pruebas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
