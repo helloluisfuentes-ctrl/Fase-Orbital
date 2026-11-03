@@ -85,4 +85,6 @@ public:
 
     int Tamano() const { return tam; }
     bool Vacia() const { return cabeza == NULL; }
+
+    NodoRegistro* ObtenerCabeza() const { return cabeza; }
 };

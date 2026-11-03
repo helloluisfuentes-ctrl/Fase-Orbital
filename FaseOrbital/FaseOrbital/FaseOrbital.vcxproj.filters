@@ -54,6 +54,9 @@
     <ClCompile Include="Pruebas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ControladorLotes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ListaBalas.h">
@@ -93,6 +96,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Pruebas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControladorLotes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

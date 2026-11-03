@@ -229,7 +229,7 @@ bool ProbarP05() {
 
     // Verificación inicial desencolar en vacía DEBE retornar false
     if (cola.Desencolar(temp) != false) return false;
-    if (cola.VerFrente() != nullptr) return false;
+    if (cola.VerFrente() != NULL) return false;
     if (!cola.Vacia() || cola.Tamano() != 0) return false;
 
     // Encolamos 3 enemigos con diferentes ticks
@@ -258,7 +258,7 @@ bool ProbarP05() {
     // Verificación final: La cola quedó completamente vacía
     if (cola.Tamano() != 0) return false;
     if (!cola.Vacia()) return false;
-    if (cola.VerFrente() != nullptr) return false;
+    if (cola.VerFrente() != NULL) return false;
 
     // Desencolar de nuevo en vacía debe retornar false
     if (cola.Desencolar(temp) != false) return false;
@@ -287,7 +287,7 @@ bool ProbarP06() {
 
         // Verificamos que la copia tenga los datos
         if (copia.Tamano() != 3) return false;
-        if (copia.VerFrente() == nullptr || copia.VerFrente()->tick != 10) return false;
+        if (copia.VerFrente() == NULL || copia.VerFrente()->tick != 10) return false;
 
         // vaciamos la copia completamente
         Spawn salida;
@@ -299,7 +299,7 @@ bool ProbarP06() {
 
         // verificacion La original DEBE seguir intacta
         if (original.Tamano() != 3) return false;
-        if (original.VerFrente() == nullptr || original.VerFrente()->tick != 10) return false;
+        if (original.VerFrente() == NULL || original.VerFrente()->tick != 10) return false;
 
         
     }
@@ -373,7 +373,7 @@ bool ProbarP07() {
     if (eliminado3 != j1) return false;
 
     // La ronda debe quedar totalmente vacía y limpia
-    if (ronda.Tamano() != 0 || !ronda.Vacia() || ronda.VerActual() != nullptr) {
+    if (ronda.Tamano() != 0 || !ronda.Vacia() || ronda.VerActual() != NULL) {
         return false;
     }
 
@@ -389,9 +389,9 @@ bool ProbarP07() {
 
 // Función auxiliar para verificar si una lista enlazada está ordenada ascendente
 bool ListaEstaOrdenada(NodoPuntaje* cabeza) {
-    if (cabeza == nullptr) return true;
+    if (cabeza == NULL) return true;
     NodoPuntaje* actual = cabeza;
-    while (actual->siguiente != nullptr) {
+    while (actual->siguiente != NULL) {
         if (actual->valor > actual->siguiente->valor) {
             return false; // Encontró un elemento mayor antes que uno menor
         }
