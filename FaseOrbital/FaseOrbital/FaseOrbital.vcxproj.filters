@@ -27,6 +27,12 @@
     <ClCompile Include="ListaEnemigos.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EnemigosLogica.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Oleada.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ColaSpawn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -53,6 +59,12 @@
     <ClInclude Include="ListaEnemigos.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EnemigosLogica.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Oleada.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Globales.h">
       <Filter>Header Files</Filter>
     </ClInclude>

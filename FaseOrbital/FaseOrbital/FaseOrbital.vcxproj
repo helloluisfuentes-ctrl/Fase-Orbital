@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -205,6 +205,9 @@
     <ClCompile Include="BitacoraEventos.cpp" />
     <ClCompile Include="Bot.cpp" />
     <ClCompile Include="ColaSpawn.cpp" />
+    <ClCompile Include="EnemigosLogica.cpp" />
+    <ClCompile Include="Motor.cpp" />
+    <ClCompile Include="Oleada.cpp" />
     <ClCompile Include="HistorialPartidas.cpp" />
     <ClCompile Include="ListaBalas.cpp" />
     <ClCompile Include="ListaEnemigos.cpp" />
@@ -216,7 +219,10 @@
     <ClInclude Include="BitacoraEventos.h" />
     <ClInclude Include="Bot.h" />
     <ClInclude Include="Generador.h" />
+    <ClInclude Include="EnemigosLogica.h" />
     <ClInclude Include="Globales.h" />
+    <ClInclude Include="Motor.h" />
+    <ClInclude Include="Oleada.h" />
     <ClInclude Include="ColaSpawn.h" />
     <ClInclude Include="HistorialPartidas.h" />
     <ClInclude Include="ListaBalas.h" />
