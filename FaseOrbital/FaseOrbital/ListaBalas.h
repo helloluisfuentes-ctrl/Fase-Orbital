@@ -45,6 +45,7 @@ public:
     int Tamano() const { return tam; }
     bool Vacia() const { return cabeza == NULL; }
     NodoBala* ObtenerCabeza() const { return cabeza; }
+    NodoBala** ObtenerPtrCabeza() { return &cabeza; }
 };
 
 
