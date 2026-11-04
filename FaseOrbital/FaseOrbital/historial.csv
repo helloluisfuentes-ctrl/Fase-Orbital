@@ -2,3 +2,4 @@ id_partida,semilla,modo,jugador,es_bot,posicion,puntaje,oleada,disparos,correcto
 1,42,por_turnos,Ana,0,1,3450,6,120,105,15,18,2,20,1950,12,6,3,6,1,1
 1,42,por_turnos,BOT1,1,2,2900,5,110,88,22,12,1,32,1700,10,4,2,4,1,0
 1,42,por_turnos,Luis,0,3,1850,4,95,70,25,8,1,45,1450,8,2,1,2,0,1
+2,42,por_turnos,lol,0,1,1200,2,313,11,13,3,0,100,1248,9,2,0,0,0,0

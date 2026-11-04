@@ -33,4 +33,5 @@ public:
 
     int Tamano() const { return tam; }
     bool Vacia() const { return cabeza == NULL; }
+    NodoRanking* ObtenerCabeza() const { return cabeza; }
 };

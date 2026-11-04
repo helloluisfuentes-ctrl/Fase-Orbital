@@ -216,7 +216,10 @@
     <ClCompile Include="Partida.cpp" />
     <ClCompile Include="Pruebas.cpp" />
     <ClCompile Include="Ranking.cpp" />
+    <ClCompile Include="ReporteHistorico.cpp" />
     <ClCompile Include="RondaJugadores.cpp" />
+    <ClCompile Include="SesionJuego.cpp" />
+    <ClCompile Include="VistaAllegro.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitacoraEventos.h" />
@@ -234,7 +237,10 @@
     <ClInclude Include="Partida.h" />
     <ClInclude Include="Pruebas.h" />
     <ClInclude Include="Ranking.h" />
+    <ClInclude Include="ReporteHistorico.h" />
     <ClInclude Include="RondaJugadores.h" />
+    <ClInclude Include="SesionJuego.h" />
+    <ClInclude Include="VistaAllegro.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -11,6 +11,14 @@ Motor::Motor() {
 	pulsoActivo = false;
 	rDeOndaPulso = 20.0;
 	bitacora = nullptr;
+	disparosTurno = 0;
+	correctosTurno = 0;
+	erroneosTurno = 0;
+	comboMaxTurno = 0;
+	for (int i = 0; i < 3; i++) {
+		correctosColor[i] = 0;
+		impactosColor[i] = 0;
+	}
 }
 
 Motor::~Motor() {
@@ -63,6 +71,14 @@ void Motor::IniciarTurno(Jugador* j, int oleada, const ColaSpawn& colaMaestra, B
 	bitacora = bitacoraPartida;
 	pulsoActivo = false;
 	rDeOndaPulso = 20.0;
+	disparosTurno = 0;
+	correctosTurno = 0;
+	erroneosTurno = 0;
+	comboMaxTurno = 0;
+	for (int i = 0; i < 3; i++) {
+		correctosColor[i] = 0;
+		impactosColor[i] = 0;
+	}
 
 	jugador->anguloNave = 270.0; // inicia siempre en 270
 	jugador->combo = 0; // el combo se reinicia al inicio de cada turno
@@ -108,6 +124,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 
 	// disparo automatico cuando el tickActual es multiplo de 4
 	if (tickActual % 4 == 0) {
+		disparosTurno++;
 		double rad = jugador->anguloNave * (PI / 180.0);
 
 		Bala b;
@@ -220,6 +237,8 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 			// si la bala entra en el radio del enemigo
 			if (distBalaEnemigo <= (e.radio + 3.5)) {
 				balaDestruida = true;
+				Color colorBala = b.color;
+				impactosColor[static_cast<int>(colorBala)]++;
 
 				// bala desaparece despues de chocar
 				NodoBala* victima = *ptrBala;
@@ -227,8 +246,14 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 				delete victima;
 
 				// caso 1 de color correcto
-				if (b.color == e.color) {
+				if (colorBala == e.color) {
+					correctosTurno++;
+					correctosColor[static_cast<int>(colorBala)]++;
 					e.vida -= 1;
+
+					if (jugador->combo + 1 > comboMaxTurno) {
+						comboMaxTurno = jugador->combo + 1;
+					}
 
 					if (e.vida <= 0) {
 						int mult = CalcularMultiplicador(jugador->combo);
@@ -259,6 +284,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 
 				// caso 2 de color incorrecto
 				else {
+					erroneosTurno++;
 					e.r += 9.0;         // se retrocede 9 hacia afuera
 					jugador->combo = 0;  // se resetea el combo
 					if (bitacora != nullptr) {
