@@ -1,9 +1,11 @@
 #include "ControladorLotes.h"
 #include "HistorialPartidas.h"
 #include "Ranking.h"
+#include "SesionJuego.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 
 
 // MÉTODOS DE ListaAccionesScript
@@ -192,4 +194,123 @@ bool ControladorLotes::CargarScript(const std::string& rutaArchivo, ListaAccione
     }
 
     return true;
+}
+
+void ControladorLotes::EjecutarModoLotes(const ConfiguracionLotes& config) {
+    SesionJuego sesion;
+
+    // Registrar jugadores
+    if (config.totalJugadores == 0) {
+        sesion.RegistrarJugador("BOT1", true);
+        sesion.RegistrarJugador("BOT2", true);
+    } else {
+        for (int i = 0; i < config.totalJugadores; i++) {
+            bool esBot = SesionJuego::EsAliasDeBot(config.jugadores[i]);
+            sesion.RegistrarJugador(config.jugadores[i], esBot);
+        }
+    }
+
+    // Cargar script si existe
+    ListaAccionesScript script;
+    bool tieneScript = false;
+    if (!config.rutaScript.empty()) {
+        tieneScript = ControladorLotes::CargarScript(config.rutaScript, script);
+    }
+
+    sesion.Iniciar(config.semilla, config.oleadas);
+
+    std::cout << "\n============================================\n";
+    std::cout << " INICIANDO PARTIDA EN MODO POR LOTES\n";
+    std::cout << " Semilla: " << config.semilla << " | Oleadas: " << config.oleadas << "\n";
+    std::cout << " Jugadores (" << sesion.GetTotalJugadores() << "): ";
+    for (int i = 0; i < sesion.GetTotalJugadores(); i++) {
+        std::cout << sesion.GetJugador(i)->alias << (sesion.GetJugador(i)->esBot ? " (bot)" : "") << " ";
+    }
+    std::cout << "\n============================================\n";
+
+    // Estado inicial de dirección y color para humanos
+    double anguloHumano[6] = { 270.0, 270.0, 270.0, 270.0, 270.0, 270.0 };
+    Color colorHumano[6] = { CIAN, CIAN, CIAN, CIAN, CIAN, CIAN };
+
+    int totalTicksSimulados = 0;
+    const int MAX_TICKS_SEGURIDAD = 120000;
+
+    while (!sesion.EstaTerminada() && totalTicksSimulados < MAX_TICKS_SEGURIDAD) {
+        if (sesion.ComenzarTurno()) {
+            int idxJugador = sesion.GetIndiceEnTurno();
+            const Jugador* jActual = sesion.GetJugadorEnTurno();
+            int oleadaActual = sesion.GetOleadaActual();
+
+            while (sesion.TurnoEnCurso() && totalTicksSimulados < MAX_TICKS_SEGURIDAD) {
+                int tickActual = sesion.GetMotor()->GetTickActual();
+                AccionTick act;
+
+                if (jActual->esBot) {
+                    act = sesion.DecidirAccionBot();
+                } else {
+                    act.anguloObjetivo = anguloHumano[idxJugador];
+                    act.colorObjetivo = colorHumano[idxJugador];
+                    act.activarPulso = false;
+
+                    if (tieneScript) {
+                        AccionScript accScript;
+                        if (script.BuscarAccion(jActual->alias, oleadaActual, tickActual, accScript)) {
+                            if (accScript.comando == "COLOR") {
+                                if (accScript.parametro == "M") colorHumano[idxJugador] = MAGENTA;
+                                else if (accScript.parametro == "A") colorHumano[idxJugador] = AMBAR;
+                                else colorHumano[idxJugador] = CIAN;
+                                act.colorObjetivo = colorHumano[idxJugador];
+                            } else if (accScript.comando == "GIRAR_A") {
+                                try {
+                                    anguloHumano[idxJugador] = std::stod(accScript.parametro);
+                                    act.anguloObjetivo = anguloHumano[idxJugador];
+                                } catch (...) {}
+                            } else if (accScript.comando == "PULSO") {
+                                act.activarPulso = true;
+                            }
+                        }
+                    }
+                }
+
+                EstadoMotor estado = sesion.EjecutarTick(act);
+                totalTicksSimulados++;
+
+                if (estado != ESTADO_EN_JUEGO) {
+                    sesion.CerrarTurno(estado);
+                    break;
+                }
+            }
+        } else {
+            break;
+        }
+    }
+
+    sesion.Finalizar();
+
+    // Líneas de tiempo requeridas por la sección 6.2
+    sesion.ImprimirLineasTiempo();
+
+    // Tabla de resultados finales
+    std::cout << "\n============================================\n";
+    std::cout << "         TABLA FINAL DE POSICIONES\n";
+    std::cout << "============================================\n";
+    for (int p = 1; p <= sesion.GetTotalJugadores(); p++) {
+        int idx = sesion.GetIndiceEnPosicion(p);
+        if (idx >= 0) {
+            const Jugador* j = sesion.GetJugador(idx);
+            const MetricasJugador& m = sesion.GetMetricas(idx);
+            std::cout << p << ". " << j->alias << (j->esBot ? " (bot)" : "")
+                      << " | Puntos: " << j->puntaje
+                      << " | Oleada: " << m.oleadaAlcanzada
+                      << " | Precision: " << std::fixed << std::setprecision(1) << (sesion.GetPrecision(idx) * 100.0) << "%\n";
+        }
+    }
+    std::cout << "============================================\n";
+
+    // Guardado en CSV
+    std::string rutaGuardar = config.rutaCSV.empty() ? "historial.csv" : config.rutaCSV;
+    std::string mensaje;
+    if (sesion.GuardarHistorial(rutaGuardar, mensaje)) {
+        std::cout << "[PERSISTENCIA] " << mensaje << "\n\n";
+    }
 }

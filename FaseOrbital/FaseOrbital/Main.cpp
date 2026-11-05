@@ -23,17 +23,16 @@ int main(int argc, char* argv[]) {
             ControladorLotes::MostrarEstadisticasConsola(config.rutaCSV);
             return 0;
         }
+        if (config.modoLotes) {
+            ControladorLotes::EjecutarModoLotes(config);
+            return 0;
+        }
         if (!config.rutaScript.empty()) {
             ListaAccionesScript listaAcciones;
             if (ControladorLotes::CargarScript(config.rutaScript, listaAcciones)) {
                 std::cout << "\n=== SCRIPT CARGADO CON EXITO ===\n";
                 std::cout << "Total de acciones: " << listaAcciones.Tamano() << "\n";
             }
-            return 0;
-        }
-        if (config.modoLotes) {
-            std::cout << "Modo por lotes detectado. Jugadores: " << config.totalJugadores
-                      << ", Semilla: " << config.semilla << ", Oleadas: " << config.oleadas << "\n";
             return 0;
         }
     }

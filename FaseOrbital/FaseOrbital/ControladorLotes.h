@@ -65,4 +65,7 @@ public:
 
     // Lee el archivo de script línea por línea y llena la lista enlazada de acciones
     static bool CargarScript(const std::string& rutaArchivo, ListaAccionesScript& listaDestino);
+
+    // Ejecuta la partida completa en modo por lotes según la especificación (Sección 7.1)
+    static void EjecutarModoLotes(const ConfiguracionLotes& config);
 };
