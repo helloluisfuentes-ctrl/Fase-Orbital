@@ -40,6 +40,7 @@ public:
     //metodos
     void AgregarInicio(NodoBala* nuevo);
     void EliminarSi(bool (*condicion)(Bala));
+    void Vaciar();
     
     //getters
     int Tamano() const { return tam; }

@@ -50,6 +50,17 @@ void ListaBalas::EliminarSi(bool (*condicion)(Bala)) {
 		}
 	}
 }
+
+// Vacia todas las balas liberando la memoria de los nodos
+void ListaBalas::Vaciar() {
+	NodoBala* aux = cabeza;
+	while (aux != NULL) {
+		cabeza = cabeza->siguiente;
+		delete aux;
+		aux = cabeza;
+	}
+	tam = 0;
+}
 /*uso ejemplo:
 	
 	bool balaFueraDelMapa(Bala b) {

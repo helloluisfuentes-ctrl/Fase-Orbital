@@ -68,6 +68,7 @@ void Motor::IniciarTurno(Jugador* j, int oleada, const ColaSpawn& colaMaestra, B
 	jugador = j;
 	NumeroOleada = oleada;
 	tickActual = 0;
+	siguienteIdEnemigo = 1;
 	bitacora = bitacoraPartida;
 	pulsoActivo = false;
 	rDeOndaPulso = 20.0;
@@ -83,8 +84,11 @@ void Motor::IniciarTurno(Jugador* j, int oleada, const ColaSpawn& colaMaestra, B
 	jugador->anguloNave = 270.0; // inicia siempre en 270
 	jugador->combo = 0; // el combo se reinicia al inicio de cada turno
 
-	colaSpawn = colaMaestra; // copia de la cola maestra para el turno actual
+	// Limpiar cualquier enemigo o bala remanente del turno anterior
+	listaEnemigos.Vaciar();
+	listaBalas.Vaciar();
 
+	colaSpawn = colaMaestra; // copia de la cola maestra para el turno actual
 }
 
 EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {

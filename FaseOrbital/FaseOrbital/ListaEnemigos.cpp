@@ -87,3 +87,15 @@ NodoEnemigo* ListaEnemigos::Eliminar(NodoEnemigo* nodoABorrar) {
 	tam--;
 	return nodoSiguiente;
 }
+
+// Vacia todos los nodos de la lista liberando la memoria
+void ListaEnemigos::Vaciar() {
+	NodoEnemigo* aux = cabeza;
+	while (aux != NULL) {
+		cabeza = cabeza->siguiente;
+		delete aux;
+		aux = cabeza;
+	}
+	cola = NULL;
+	tam = 0;
+}

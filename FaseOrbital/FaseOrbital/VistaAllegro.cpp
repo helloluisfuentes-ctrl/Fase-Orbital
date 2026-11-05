@@ -293,6 +293,8 @@ void VistaAllegro::ComenzarTurno() {
     }
     fase = sesion.GetJugadorEnTurno()->faseColor;
     izquierda = derecha = usarMouse = pulso = false;
+    for (int i = 0; i < MAX_DESTELLOS; i++) destellos[i].activo = false;
+    totalFoto = 0;
     IrA(PANTALLA_JUEGO);
 }
 

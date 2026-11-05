@@ -41,6 +41,7 @@ public:
     void InsertarFinal(NodoEnemigo* nuevo);
     void InsertarDespues(NodoEnemigo* nodoAnterior, NodoEnemigo* nuevo);
     NodoEnemigo* Eliminar(NodoEnemigo* nodoABorrar);
+    void Vaciar();
 
     NodoEnemigo* Primero() const { return cabeza; }
     NodoEnemigo* Ultimo() const { return cola; }
