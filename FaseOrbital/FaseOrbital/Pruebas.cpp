@@ -4,9 +4,15 @@
 #include "RondaJugadores.h"
 #include "ListaBalas.h"
 #include "HistorialPartidas.h"
+#include "Motor.h"
+#include "EnemigosLogica.h"
+#include "Oleada.h"
+#include "BitacoraEventos.h"
+#include "SesionJuego.h"
 #include <iostream>
 #include <fstream>
 #include <cstdio>
+#include <cmath>
 
 bool ProbarP01() {
     ListaEnemigos lista;
@@ -385,6 +391,303 @@ bool ProbarP07() {
     return true;
 }
 
+bool ProbarP08() {
+    uint32_t semilla = 42;
+    int oleada = 1;
+
+    // Ejecucion 1
+    Jugador j1;
+    j1.alias = "TestBot";
+    j1.esBot = true;
+    j1.vidaNucleo = 100;
+    j1.puntaje = 0;
+    j1.combo = 0;
+    j1.cargaPulso = 0;
+    j1.faseColor = CIAN;
+    j1.anguloNave = 270.0;
+
+    ColaSpawn cola1;
+    GenerarOleada(semilla, oleada, cola1);
+    BitacoraEventos bitacora1;
+    Motor motor1;
+    motor1.IniciarTurno(&j1, oleada, cola1, &bitacora1);
+
+    for (int t = 0; t < 150; t++) {
+        AccionTick act;
+        act.anguloObjetivo = (t % 2 == 0) ? 90.0 : 180.0;
+        act.colorObjetivo = (t < 50) ? CIAN : ((t < 100) ? MAGENTA : AMBAR);
+        act.activarPulso = false;
+        motor1.ActualizarTick(act);
+    }
+
+    // Ejecucion 2 con misma semilla e identicas acciones
+    Jugador j2;
+    j2.alias = "TestBot";
+    j2.esBot = true;
+    j2.vidaNucleo = 100;
+    j2.puntaje = 0;
+    j2.combo = 0;
+    j2.cargaPulso = 0;
+    j2.faseColor = CIAN;
+    j2.anguloNave = 270.0;
+
+    ColaSpawn cola2;
+    GenerarOleada(semilla, oleada, cola2);
+    BitacoraEventos bitacora2;
+    Motor motor2;
+    motor2.IniciarTurno(&j2, oleada, cola2, &bitacora2);
+
+    for (int t = 0; t < 150; t++) {
+        AccionTick act;
+        act.anguloObjetivo = (t % 2 == 0) ? 90.0 : 180.0;
+        act.colorObjetivo = (t < 50) ? CIAN : ((t < 100) ? MAGENTA : AMBAR);
+        act.activarPulso = false;
+        motor2.ActualizarTick(act);
+    }
+
+    // Comparacion estricta de estado final
+    if (j1.vidaNucleo != j2.vidaNucleo) return false;
+    if (j1.puntaje != j2.puntaje) return false;
+    if (j1.combo != j2.combo) return false;
+    if (j1.cargaPulso != j2.cargaPulso) return false;
+    if (std::abs(j1.anguloNave - j2.anguloNave) > 0.001) return false;
+    if (motor1.GetListaEnemigos().Tamano() != motor2.GetListaEnemigos().Tamano()) return false;
+    if (motor1.GetListaBalas().Tamano() != motor2.GetListaBalas().Tamano()) return false;
+    if (motor1.GetDisparosTurno() != motor2.GetDisparosTurno()) return false;
+    if (motor1.GetCorrectosTurno() != motor2.GetCorrectosTurno()) return false;
+    if (motor1.GetErroneosTurno() != motor2.GetErroneosTurno()) return false;
+
+    // Comparacion de eventos en la bitacora
+    if (bitacora1.Tamano() != bitacora2.Tamano()) return false;
+    NodoEvento* e1 = bitacora1.ObtenerCabeza();
+    NodoEvento* e2 = bitacora2.ObtenerCabeza();
+    while (e1 != nullptr && e2 != nullptr) {
+        if (e1->evento.tick != e2->evento.tick) return false;
+        if (e1->evento.tipoEvento != e2->evento.tipoEvento) return false;
+        if (e1->evento.tipoEnemigo != e2->evento.tipoEnemigo) return false;
+        if (e1->evento.color != e2->evento.color) return false;
+        if (e1->evento.valor != e2->evento.valor) return false;
+        e1 = e1->siguiente;
+        e2 = e2->siguiente;
+    }
+
+    return true;
+}
+
+bool ProbarP09() {
+    Jugador j;
+    j.alias = "TestColor";
+    j.esBot = false;
+    j.vidaNucleo = 100;
+    j.puntaje = 0;
+    j.combo = 5;
+    j.cargaPulso = 0;
+    j.faseColor = CIAN;
+    j.anguloNave = 270.0;
+
+    ColaSpawn cola;
+    Spawn s = { 0, TANQUE, MAGENTA, 270, 0 };
+    cola.Encolar(s);
+
+    BitacoraEventos bitacora;
+    Motor motor;
+    motor.IniciarTurno(&j, 1, cola, &bitacora);
+    j.combo = 5; // re-asignar combo inicial
+
+    for (int t = 0; t < 25; t++) {
+        AccionTick act;
+        act.anguloObjetivo = 270.0;
+        act.colorObjetivo = CIAN; // Color Cian dispara contra Tanque Magenta
+        act.activarPulso = false;
+        motor.ActualizarTick(act);
+        if (motor.GetErroneosTurno() > 0) break;
+    }
+
+    // Verificaciones:
+    if (motor.GetErroneosTurno() != 1) return false;
+    if (j.combo != 0) return false; // Combo reseteado a 0
+    if (motor.GetListaEnemigos().Tamano() != 1) return false;
+    NodoEnemigo* nodoTanque = motor.GetListaEnemigos().Primero();
+    if (nodoTanque == nullptr) return false;
+    if (nodoTanque->enemigo.vida != 3) return false; // Vida sin cambio
+    if (nodoTanque->enemigo.r < 285.0) return false; // r aumento 9 u
+
+    bool eventoRegistrado = false;
+    NodoEvento* ev = bitacora.ObtenerCabeza();
+    while (ev != nullptr) {
+        if (ev->evento.tipoEvento == IMPACTO_ERRONEO && ev->evento.color == MAGENTA) {
+            eventoRegistrado = true;
+            break;
+        }
+        ev = ev->siguiente;
+    }
+
+    return eventoRegistrado;
+}
+
+bool ProbarP10() {
+    ListaEnemigos lista;
+
+    NodoEnemigo* nA = new NodoEnemigo;
+    nA->enemigo.id = 1;
+    nA->enemigo.tipo = DRON;
+    nA->enemigo.color = CIAN;
+    nA->enemigo.r = 200.0;
+    nA->enemigo.theta = 0.0;
+    nA->enemigo.vida = 1;
+    nA->enemigo.radio = 6;
+    nA->anterior = nullptr; nA->siguiente = nullptr;
+    lista.InsertarFinal(nA);
+
+    NodoEnemigo* nDivisor = new NodoEnemigo;
+    nDivisor->enemigo.id = 2;
+    nDivisor->enemigo.tipo = DIVISOR;
+    nDivisor->enemigo.color = CIAN;
+    nDivisor->enemigo.r = 180.0;
+    nDivisor->enemigo.theta = 120.0;
+    nDivisor->enemigo.vida = 1;
+    nDivisor->enemigo.radio = 8;
+    nDivisor->anterior = nullptr; nDivisor->siguiente = nullptr;
+    lista.InsertarFinal(nDivisor);
+
+    NodoEnemigo* nB = new NodoEnemigo;
+    nB->enemigo.id = 3;
+    nB->enemigo.tipo = DRON;
+    nB->enemigo.color = AMBAR;
+    nB->enemigo.r = 250.0;
+    nB->enemigo.theta = 180.0;
+    nB->enemigo.vida = 1;
+    nB->enemigo.radio = 6;
+    nB->anterior = nullptr; nB->siguiente = nullptr;
+    lista.InsertarFinal(nB);
+
+    if (lista.Tamano() != 3) return false;
+
+    int siguienteId = 10;
+    GenerarMinis(nDivisor, lista, 1, siguienteId);
+    lista.Eliminar(nDivisor);
+
+    if (lista.Tamano() != 4) return false;
+
+    NodoEnemigo* primero = lista.Primero();
+    if (primero != nA) return false;
+
+    NodoEnemigo* m1 = primero->siguiente;
+    if (m1 == nullptr || m1->enemigo.tipo != MINI) return false;
+
+    NodoEnemigo* m2 = m1->siguiente;
+    if (m2 == nullptr || m2->enemigo.tipo != MINI) return false;
+
+    if (m2->siguiente != nB) return false;
+    if (lista.Ultimo() != nB) return false;
+
+    if (std::abs(m1->enemigo.r - 180.0) > 0.001) return false;
+    if (std::abs(m2->enemigo.r - 180.0) > 0.001) return false;
+
+    double t1 = m1->enemigo.theta;
+    double t2 = m2->enemigo.theta;
+    bool angulosCorrectos = (std::abs(t1 - 116.0) < 0.001 && std::abs(t2 - 124.0) < 0.001) ||
+                            (std::abs(t1 - 124.0) < 0.001 && std::abs(t2 - 116.0) < 0.001);
+    if (!angulosCorrectos) return false;
+
+    Color c1 = m1->enemigo.color;
+    Color c2 = m2->enemigo.color;
+    if (c1 == CIAN || c2 == CIAN) return false;
+    if (c1 == c2) return false;
+    if (!((c1 == MAGENTA && c2 == AMBAR) || (c1 == AMBAR && c2 == MAGENTA))) return false;
+
+    if (nB->anterior != m2 || m2->anterior != m1 || m1->anterior != nA) return false;
+
+    return true;
+}
+
+bool ProbarP11() {
+    // Parte 1: Carga menor a 100 (sin efecto)
+    {
+        Jugador j;
+        j.alias = "TestPulso1";
+        j.esBot = false;
+        j.vidaNucleo = 100;
+        j.puntaje = 0;
+        j.combo = 0;
+        j.cargaPulso = 80;
+        j.faseColor = CIAN;
+        j.anguloNave = 270.0;
+
+        ColaSpawn cola;
+        Spawn s = { 0, DRON, CIAN, 90, 0 };
+        cola.Encolar(s);
+
+        BitacoraEventos bitacora;
+        Motor motor;
+        motor.IniciarTurno(&j, 1, cola, &bitacora);
+        j.cargaPulso = 80;
+
+        AccionTick act;
+        act.anguloObjetivo = 270.0;
+        act.colorObjetivo = CIAN;
+        act.activarPulso = true;
+
+        motor.ActualizarTick(act);
+
+        if (motor.EsPulsoActivo()) return false;
+        if (j.cargaPulso != 80) return false;
+        if (motor.GetListaEnemigos().Tamano() != 1) return false;
+    }
+
+    // Parte 2: Carga igual a 100 (activacion y destruccion en banda)
+    {
+        Jugador j;
+        j.alias = "TestPulso2";
+        j.esBot = false;
+        j.vidaNucleo = 100;
+        j.puntaje = 0;
+        j.combo = 0;
+        j.cargaPulso = 100;
+        j.faseColor = CIAN;
+        j.anguloNave = 270.0;
+
+        ColaSpawn cola;
+        Spawn s = { 0, DRON, AMBAR, 90, 0 };
+        cola.Encolar(s);
+
+        BitacoraEventos bitacora;
+        Motor motor;
+        motor.IniciarTurno(&j, 1, cola, &bitacora);
+        j.cargaPulso = 100;
+
+        AccionTick act;
+        act.anguloObjetivo = 270.0;
+        act.colorObjetivo = CIAN;
+        act.activarPulso = true;
+        motor.ActualizarTick(act);
+
+        if (!motor.EsPulsoActivo()) return false;
+        if (j.cargaPulso != 0) return false;
+
+        for (int t = 1; t < 30; t++) {
+            act.activarPulso = false;
+            motor.ActualizarTick(act);
+            if (motor.GetListaEnemigos().Vacia()) break;
+        }
+
+        if (!motor.GetListaEnemigos().Vacia()) return false;
+        if (j.puntaje != 100) return false;
+
+        bool huboPulso = false, huboBaja = false;
+        NodoEvento* ev = bitacora.ObtenerCabeza();
+        while (ev != nullptr) {
+            if (ev->evento.tipoEvento == PULSO) huboPulso = true;
+            if (ev->evento.tipoEvento == BAJA) huboBaja = true;
+            ev = ev->siguiente;
+        }
+        if (!huboPulso || !huboBaja) return false;
+    }
+
+    return true;
+}
+
+
 
 
 // Función auxiliar para verificar si una lista enlazada está ordenada ascendente
@@ -515,71 +818,99 @@ bool ProbarP13() {
     return true;
 }
 
+bool ProbarP14() {
+    SesionJuego sesion;
+    sesion.RegistrarJugador("BOT1", true);
+    sesion.RegistrarJugador("BOT2", true);
+    sesion.RegistrarJugador("BOT3", true);
+    sesion.RegistrarJugador("BOT4", true);
+
+    uint32_t semilla = 42;
+    int oleadas = 10;
+    sesion.Iniciar(semilla, oleadas);
+
+    int totalTicksSimulados = 0;
+    const int MAX_TICKS_SEGURIDAD = 60000;
+
+    while (!sesion.EstaTerminada() && totalTicksSimulados < MAX_TICKS_SEGURIDAD) {
+        if (sesion.ComenzarTurno()) {
+            while (sesion.TurnoEnCurso() && totalTicksSimulados < MAX_TICKS_SEGURIDAD) {
+                AccionTick act = sesion.DecidirAccionBot();
+                EstadoMotor estado = sesion.EjecutarTick(act);
+                totalTicksSimulados++;
+                if (estado != ESTADO_EN_JUEGO) {
+                    sesion.CerrarTurno(estado);
+                    break;
+                }
+            }
+        } else {
+            break;
+        }
+    }
+
+    sesion.Finalizar();
+
+    if (!sesion.EstaTerminada()) return false;
+    for (int p = 1; p <= 4; p++) {
+        int idx = sesion.GetIndiceEnPosicion(p);
+        if (idx < 0 || idx >= 4) return false;
+    }
+
+    return true;
+}
+
+
 void EjecutarTodasLasPruebas() {
     std::cout << "========================================\n";
-    std::cout << "      BANCO DE PRUEBAS MINIMAS          \n";
+    std::cout << "      BANCO DE PRUEBAS MINIMAS (14/14)  \n";
     std::cout << "========================================\n\n";
 
-    if (ProbarP01()) {
-        std::cout << "[PASO] P01: ListaEnemigos - Insercion y eliminacion de 1000 nodos\n";
-    } else {
-        std::cout << "[FALLO] P01: ListaEnemigos\n";
-    }
+    int exitosas = 0;
+    int total = 14;
 
-    if (ProbarP02()) {
-        std::cout << "[PASO] P02: ListaEnemigos - Eliminacion de cabeza, cola y nodo unico\n";
-    }
-    else {
-        std::cout << "[FALLO] P02: ListaEnemigos\n";
-    }
+    if (ProbarP01()) { std::cout << "[PASO] P01: ListaEnemigos - Insercion y eliminacion de 1000 nodos\n"; exitosas++; }
+    else { std::cout << "[FALLO] P01: ListaEnemigos\n"; }
 
-    if (ProbarP03()) {
-        std::cout << "[PASO] P03: ListaEnemigos - InsertarDespues sobre la cola\n";
-    }
-    else {
-        std::cout << "[FALLO] P03: ListaEnemigos\n";
-    }
+    if (ProbarP02()) { std::cout << "[PASO] P02: ListaEnemigos - Eliminacion de cabeza, cola y nodo unico\n"; exitosas++; }
+    else { std::cout << "[FALLO] P02: ListaEnemigos\n"; }
 
-    if (ProbarP04()) {
-        std::cout << "[PASO] P04: ListaBalas - Eliminacion consecutiva con doble puntero\n";
-    }
-    else {
-        std::cout << "[FALLO] P04: ListaBalas\n";
-    }
+    if (ProbarP03()) { std::cout << "[PASO] P03: ListaEnemigos - InsertarDespues sobre la cola\n"; exitosas++; }
+    else { std::cout << "[FALLO] P03: ListaEnemigos\n"; }
 
-    if (ProbarP05()) {
-        std::cout << "[PASO] P05: ColaSpawn - Encolar y desencolar hasta vaciar\n";
-    }
-    else {
-        std::cout << "[FALLO] P05: ColaSpawn\n";
-    }
+    if (ProbarP04()) { std::cout << "[PASO] P04: ListaBalas - Eliminacion consecutiva con doble puntero\n"; exitosas++; }
+    else { std::cout << "[FALLO] P04: ListaBalas\n"; }
 
-    if (ProbarP06()) {
-        std::cout << "[PASO] P06: ColaSpawn - Copia profunda sin doble liberacion\n";
-    }
-    else {
-        std::cout << "[FALLO] P06: ColaSpawn\n";
-    }
+    if (ProbarP05()) { std::cout << "[PASO] P05: ColaSpawn - Encolar y desencolar hasta vaciar\n"; exitosas++; }
+    else { std::cout << "[FALLO] P05: ColaSpawn\n"; }
 
-    if (ProbarP07()) {
-        std::cout << "[PASO] P07: RondaJugadores - Rotacion y eliminacion circular\n";
-    }
-    else {
-        std::cout << "[FALLO] P07: RondaJugadores\n";
-    }
+    if (ProbarP06()) { std::cout << "[PASO] P06: ColaSpawn - Copia profunda sin doble liberacion\n"; exitosas++; }
+    else { std::cout << "[FALLO] P06: ColaSpawn\n"; }
 
+    if (ProbarP07()) { std::cout << "[PASO] P07: RondaJugadores - Rotacion y eliminacion circular\n"; exitosas++; }
+    else { std::cout << "[FALLO] P07: RondaJugadores\n"; }
 
-    if (ProbarP12()) {
-        std::cout << "[PASO] P12: Estadisticas - Merge Sort y calculo de Mediana\n";
-    }
-    else {
-        std::cout << "[FALLO] P12: Estadisticas (Merge Sort)\n";
-    }
+    if (ProbarP08()) { std::cout << "[PASO] P08: Motor - Reproducibilidad determinista con misma semilla\n"; exitosas++; }
+    else { std::cout << "[FALLO] P08: Motor (Reproducibilidad)\n"; }
 
-    if (ProbarP13()) {
-        std::cout << "[PASO] P13: Persistencia - Guardar, cargar y omision de lineas invalidas\n";
-    }
-    else {
-        std::cout << "[FALLO] P13: Persistencia\n";
-    }
+    if (ProbarP09()) { std::cout << "[PASO] P09: Motor - Impacto con color erroneo (r+9, combo=0, vida igual)\n"; exitosas++; }
+    else { std::cout << "[FALLO] P09: Motor (Impacto erroneo)\n"; }
+
+    if (ProbarP10()) { std::cout << "[PASO] P10: Motor - Baja de Divisor (2 Minis con colores distintos)\n"; exitosas++; }
+    else { std::cout << "[FALLO] P10: Motor (Baja de Divisor)\n"; }
+
+    if (ProbarP11()) { std::cout << "[PASO] P11: Motor - Pulso con carga < 100 vs = 100 y bajas en banda\n"; exitosas++; }
+    else { std::cout << "[FALLO] P11: Motor (Pulso)\n"; }
+
+    if (ProbarP12()) { std::cout << "[PASO] P12: Estadisticas - Merge Sort sobre lista y mediana (par/impar)\n"; exitosas++; }
+    else { std::cout << "[FALLO] P12: Estadisticas (Merge Sort)\n"; }
+
+    if (ProbarP13()) { std::cout << "[PASO] P13: Persistencia - Guardar, cargar y omision de lineas invalidas\n"; exitosas++; }
+    else { std::cout << "[FALLO] P13: Persistencia\n"; }
+
+    if (ProbarP14()) { std::cout << "[PASO] P14: Memoria - Partida completa con 4 bots y 10 oleadas\n"; exitosas++; }
+    else { std::cout << "[FALLO] P14: Memoria (Simulacion 4 bots)\n"; }
+
+    std::cout << "\n----------------------------------------\n";
+    std::cout << "Resultado: " << exitosas << " / " << total << " pruebas pasadas con exito.\n";
+    std::cout << "----------------------------------------\n";
 }
