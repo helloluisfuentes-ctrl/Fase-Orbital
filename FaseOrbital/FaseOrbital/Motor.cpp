@@ -4,13 +4,13 @@
 const double PI = 3.14159265358979323846;
 
 Motor::Motor() {
-	jugador = nullptr;
+	jugador = NULL;
 	NumeroOleada = 1;
 	tickActual = 0;
 	siguienteIdEnemigo = 1;
 	pulsoActivo = false;
 	rDeOndaPulso = 20.0;
-	bitacora = nullptr;
+	bitacora = NULL;
 	disparosTurno = 0;
 	correctosTurno = 0;
 	erroneosTurno = 0;
@@ -101,7 +101,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 		rDeOndaPulso = 20.0;
 		jugador->cargaPulso = 0; // vuelve a 0 al activarse el pulso
 		
-		if (bitacora != nullptr) {
+		if (bitacora != NULL) {
 			bitacora->AgregarFinal({tickActual, NumeroOleada, jugador->alias, PULSO, DRON, jugador->faseColor, 0});
 		}
 
@@ -119,8 +119,8 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 		Enemigo nuevoE = CrearEnemigo(sp, NumeroOleada, siguienteIdEnemigo++);
 		NodoEnemigo* nuevoNodo = new NodoEnemigo;
 		nuevoNodo->enemigo = nuevoE;
-		nuevoNodo->anterior = nullptr;
-		nuevoNodo->siguiente = nullptr;
+		nuevoNodo->anterior = NULL;
+		nuevoNodo->siguiente = NULL;
 		listaEnemigos.InsertarFinal(nuevoNodo);
 
 	}
@@ -146,13 +146,13 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 
 		NodoBala* nuevoNodo = new NodoBala;
 		nuevoNodo->bala = b;
-		nuevoNodo->siguiente = nullptr;
+		nuevoNodo->siguiente = NULL;
 		listaBalas.AgregarInicio(nuevoNodo);
 	}
 
 	// mover enemigos y ciclos de camaleones
 	NodoEnemigo* nodoE = listaEnemigos.Primero();
-	while (nodoE != nullptr) {
+	while (nodoE != NULL) {
 		MoverEnemigo(nodoE->enemigo, NumeroOleada);
 		nodoE = nodoE->siguiente;
 	}
@@ -162,7 +162,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 	PolarACartesiano(100.0, jugador->anguloNave, naveX, naveY);
 
 	nodoE = listaEnemigos.Primero();
-	while (nodoE != nullptr) {
+	while (nodoE != NULL) {
 		Enemigo& e = nodoE->enemigo;
 		double ex, ey;
 		PolarACartesiano(e.r, e.theta, ex, ey);
@@ -173,7 +173,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 			jugador->vidaNucleo -= dano;
 			jugador->combo = 0; // se pierde el combo al recibir daño
 
-			if (bitacora != nullptr) {
+			if (bitacora != NULL) {
 				bitacora->AgregarFinal({ tickActual, NumeroOleada, jugador->alias, DANO_NUCLEO, e.tipo, e.color, dano });
 			}
 
@@ -188,7 +188,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 			jugador->vidaNucleo -= dano;
 			jugador->combo = 0; // se pierde el combo al recibir daño
 			
-			if (bitacora != nullptr) {
+			if (bitacora != NULL) {
 				bitacora->AgregarFinal({ tickActual, NumeroOleada, jugador->alias, CHOQUE_NAVE, e.tipo, e.color, dano });
 			}
 			
@@ -207,7 +207,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 	// mover balas y resolver choques con enemigos
 	NodoBala** ptrBala = listaBalas.ObtenerPtrCabeza();
 
-	while (*ptrBala != nullptr) {
+	while (*ptrBala != NULL) {
 		Bala& b = (*ptrBala)->bala;
 
 		// mover la bala
@@ -228,7 +228,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 		bool balaDestruida = false;
 		NodoEnemigo* auxE = listaEnemigos.Primero();
 
-		while (auxE != nullptr && !balaDestruida) {
+		while (auxE != NULL && !balaDestruida) {
 			Enemigo& e = auxE->enemigo;
 			double ex, ey;
 			PolarACartesiano(e.r, e.theta, ex, ey);
@@ -270,7 +270,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 						int carga = (e.tipo == TANQUE) ? 14 : 5;
 						jugador->cargaPulso = min(100, jugador->cargaPulso + carga);
 
-						if (bitacora != nullptr) {
+						if (bitacora != NULL) {
 							bitacora->AgregarFinal({ tickActual, NumeroOleada, jugador->alias, BAJA, e.tipo, e.color, puntos });
 						}
 
@@ -291,7 +291,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 					erroneosTurno++;
 					e.r += 9.0;         // se retrocede 9 hacia afuera
 					jugador->combo = 0;  // se resetea el combo
-					if (bitacora != nullptr) {
+					if (bitacora != NULL) {
 						bitacora->AgregarFinal({ tickActual, NumeroOleada, jugador->alias, IMPACTO_ERRONEO, e.tipo, e.color, 0 });
 					}
 				}
@@ -325,7 +325,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 
 			NodoEnemigo* auxE = listaEnemigos.Primero();
 			
-			while (auxE != nullptr) {
+			while (auxE != NULL) {
 				Enemigo& e = auxE->enemigo;
 
 				if (abs(e.r - rDeOndaPulso) < (e.radio + 3.0)) {
@@ -334,7 +334,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 					int puntos = ObtenerPuntosEnemigo(e.tipo) * mult;
 					jugador->puntaje += puntos;
 
-					if (bitacora != nullptr) {
+					if (bitacora != NULL) {
 						bitacora->AgregarFinal({ tickActual, NumeroOleada, jugador->alias, BAJA, e.tipo, e.color, puntos });
 					}
 					
@@ -356,7 +356,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 	if (jugador->vidaNucleo <= 0) {
 		jugador->vidaNucleo = 0;
 
-		if (bitacora != nullptr) {
+		if (bitacora != NULL) {
 			bitacora->AgregarFinal({ tickActual, NumeroOleada, jugador->alias, ELIMINACION, DRON, jugador->faseColor, 0});
 		}
 
@@ -368,7 +368,7 @@ EstadoMotor Motor::ActualizarTick(const AccionTick& accion) {
 		// se le da +8 al nucleo al terminar la oleada con max 100
 		jugador->vidaNucleo = min(100, jugador->vidaNucleo + 8);
 
-		if (bitacora != nullptr) {
+		if (bitacora != NULL) {
 			bitacora->AgregarFinal({ tickActual, NumeroOleada, jugador->alias, FIN_OLEADA, DRON, jugador->faseColor, 0 });
 		}
 

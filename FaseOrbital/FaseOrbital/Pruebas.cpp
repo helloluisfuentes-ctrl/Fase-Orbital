@@ -461,7 +461,7 @@ bool ProbarP08() {
     if (bitacora1.Tamano() != bitacora2.Tamano()) return false;
     NodoEvento* e1 = bitacora1.ObtenerCabeza();
     NodoEvento* e2 = bitacora2.ObtenerCabeza();
-    while (e1 != nullptr && e2 != nullptr) {
+    while (e1 != NULL && e2 != NULL) {
         if (e1->evento.tick != e2->evento.tick) return false;
         if (e1->evento.tipoEvento != e2->evento.tipoEvento) return false;
         if (e1->evento.tipoEnemigo != e2->evento.tipoEnemigo) return false;
@@ -508,13 +508,13 @@ bool ProbarP09() {
     if (j.combo != 0) return false; // Combo reseteado a 0
     if (motor.GetListaEnemigos().Tamano() != 1) return false;
     NodoEnemigo* nodoTanque = motor.GetListaEnemigos().Primero();
-    if (nodoTanque == nullptr) return false;
+    if (nodoTanque == NULL) return false;
     if (nodoTanque->enemigo.vida != 3) return false; // Vida sin cambio
     if (nodoTanque->enemigo.r < 285.0) return false; // r aumento 9 u
 
     bool eventoRegistrado = false;
     NodoEvento* ev = bitacora.ObtenerCabeza();
-    while (ev != nullptr) {
+    while (ev != NULL) {
         if (ev->evento.tipoEvento == IMPACTO_ERRONEO && ev->evento.color == MAGENTA) {
             eventoRegistrado = true;
             break;
@@ -536,7 +536,7 @@ bool ProbarP10() {
     nA->enemigo.theta = 0.0;
     nA->enemigo.vida = 1;
     nA->enemigo.radio = 6;
-    nA->anterior = nullptr; nA->siguiente = nullptr;
+    nA->anterior = NULL; nA->siguiente = NULL;
     lista.InsertarFinal(nA);
 
     NodoEnemigo* nDivisor = new NodoEnemigo;
@@ -547,7 +547,7 @@ bool ProbarP10() {
     nDivisor->enemigo.theta = 120.0;
     nDivisor->enemigo.vida = 1;
     nDivisor->enemigo.radio = 8;
-    nDivisor->anterior = nullptr; nDivisor->siguiente = nullptr;
+    nDivisor->anterior = NULL; nDivisor->siguiente = NULL;
     lista.InsertarFinal(nDivisor);
 
     NodoEnemigo* nB = new NodoEnemigo;
@@ -558,7 +558,7 @@ bool ProbarP10() {
     nB->enemigo.theta = 180.0;
     nB->enemigo.vida = 1;
     nB->enemigo.radio = 6;
-    nB->anterior = nullptr; nB->siguiente = nullptr;
+    nB->anterior = NULL; nB->siguiente = NULL;
     lista.InsertarFinal(nB);
 
     if (lista.Tamano() != 3) return false;
@@ -573,10 +573,10 @@ bool ProbarP10() {
     if (primero != nA) return false;
 
     NodoEnemigo* m1 = primero->siguiente;
-    if (m1 == nullptr || m1->enemigo.tipo != MINI) return false;
+    if (m1 == NULL || m1->enemigo.tipo != MINI) return false;
 
     NodoEnemigo* m2 = m1->siguiente;
-    if (m2 == nullptr || m2->enemigo.tipo != MINI) return false;
+    if (m2 == NULL || m2->enemigo.tipo != MINI) return false;
 
     if (m2->siguiente != nB) return false;
     if (lista.Ultimo() != nB) return false;
@@ -676,7 +676,7 @@ bool ProbarP11() {
 
         bool huboPulso = false, huboBaja = false;
         NodoEvento* ev = bitacora.ObtenerCabeza();
-        while (ev != nullptr) {
+        while (ev != NULL) {
             if (ev->evento.tipoEvento == PULSO) huboPulso = true;
             if (ev->evento.tipoEvento == BAJA) huboBaja = true;
             ev = ev->siguiente;

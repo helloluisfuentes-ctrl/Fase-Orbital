@@ -14,7 +14,7 @@ struct AccionScript {
 // Nodo de la lista enlazada de acciones
 struct NodoAccionScript {
     AccionScript dato;
-    NodoAccionScript* siguiente = nullptr;
+    NodoAccionScript* siguiente = NULL;
 };
 
 // Lista simplemente enlazada para almacenar las acciones del script 
@@ -38,7 +38,7 @@ public:
     bool BuscarAccion(const std::string& jugador, int oleada, int tick, AccionScript& salida) const;
 
     int Tamano() const { return tam; }
-    bool Vacia() const { return cabeza == nullptr; }
+    bool Vacia() const { return cabeza == NULL; }
 };
 
 // Parámetros de la línea de comandos
