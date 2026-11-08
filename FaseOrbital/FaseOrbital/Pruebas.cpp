@@ -14,10 +14,26 @@
 #include <cstdio>
 #include <cmath>
 
+/*
+ * Archivo: Pruebas.cpp
+ * Descripcion: Implementacion de la suite de 14 pruebas unitarias minimas
+ * exigidas en el enunciado del proyecto. Validamos cada estructura de datos
+ * (listas simples con doble puntero, listas dobles, listas circulares, colas FIFO),
+ * el algoritmo Merge Sort sobre listas, persistencia y la logica de colisiones y turnos.
+ */
+
+/*
+ * Funcion: ProbarP01
+ * Descripcion: Prueba la lista doblemente enlazada insertando 1000 nodos y eliminando
+ * los nodos con ID par durante el recorrido. Verifica que el tamano final sea 500
+ * y que los recorridos hacia adelante y hacia atras con punteros 'anterior' coincidan.
+ * Entradas: Ninguna
+ * Salidas: True si la lista mantiene la consistencia bidireccional, false si falla
+ */
 bool ProbarP01() {
     ListaEnemigos lista;
 
-    // Insertar 1000 enemigos con ID del 1 al 1000
+    // Insertamos 1000 enemigos con identificadores secuenciales del 1 al 1000
     for (int i = 1; i <= 1000; i++) {
         NodoEnemigo* n = new NodoEnemigo;
         n->enemigo.id = i;
@@ -32,32 +48,31 @@ bool ProbarP01() {
         lista.InsertarFinal(n);
     }
 
-    // Eliminar los de ID par durante el recorrido
+    // Recorremos la lista y borramos los pares; Eliminar retorna el siguiente nodo para no perder el puntero
     NodoEnemigo* aux = lista.Primero();
     while (aux != NULL) {
         if (aux->enemigo.id % 2 == 0) {
-            // Eliminar retorna el siguiente nodo, permitiendo continuar sin saltos
             aux = lista.Eliminar(aux);
         } else {
             aux = aux->siguiente;
         }
     }
 
-    // verificacion, el tamaño debe ser exactamente 500
+    // Validamos que el contador interno de la lista haya quedado exactamente en 500
     if (lista.Tamano() != 500) {
         return false;
     }
 
-    //Verificación, recorrido hacia adelante (contar y validar que todos sean impares)
+    // Recorrido hacia adelante: verificamos que todos los elementos restantes sean impares
     int conteoAdelante = 0;
     aux = lista.Primero();
     while (aux != NULL) {
-        if (aux->enemigo.id % 2 == 0) return false; // No debe quedar ningún par
+        if (aux->enemigo.id % 2 == 0) return false;
         conteoAdelante++;
         aux = aux->siguiente;
     }
 
-    // Verificación  recorrido hacia atrás usando punteros 'anterior'
+    // Recorrido hacia atras: usamos los punteros 'anterior' desde la cola para comprobar enlaces inversos
     int conteoAtras = 0;
     aux = lista.Ultimo();
     while (aux != NULL) {
@@ -65,30 +80,35 @@ bool ProbarP01() {
         aux = aux->anterior;
     }
 
-    // Ambos recorridos deben coincidir en 500 nodos
+    // Ambos recorridos deben contar exactamente los mismos 500 nodos
     return (conteoAdelante == 500 && conteoAtras == 500);
 }
 
+/*
+ * Funcion: ProbarP02
+ * Descripcion: Prueba los casos limite de eliminacion en la lista doblemente enlazada:
+ * eliminar un nodo unico, eliminar la cabeza, eliminar la cola y vaciar la lista por completo.
+ * Entradas: Ninguna
+ * Salidas: True si los punteros cabeza, cola y enlaces anterior/siguiente se actualizan bien
+ */
 bool ProbarP02() {
     ListaEnemigos lista;
 
-    //Sub-prueba Eliminar un nodo unico 
+    // Caso 1: Insertar y eliminar en una lista de un solo elemento
     NodoEnemigo* n1 = new NodoEnemigo;
     n1->enemigo.id = 99;
     lista.InsertarFinal(n1);
 
-    // Debe tener tamaño 1 y cabeza igual a cola
     if (lista.Tamano() != 1 || lista.Primero() != lista.Ultimo()) return false;
 
-    // Eliminamos el único nodo
     lista.Eliminar(lista.Primero());
 
-    // La lista DEBE quedar vacía y con cabeza y cola en NULL
+    // La lista debe quedar limpia con cabeza y cola apuntando a NULL
     if (lista.Tamano() != 0 || lista.Primero() != NULL || lista.Ultimo() != NULL || !lista.Vacia()) {
         return false;
     }
 
-    // Sub-prueba Eliminar CABEZA y COLA en lista con varios nodos 
+    // Caso 2: Insertar tres elementos para probar eliminacion de extremos (cabeza y cola)
     NodoEnemigo* nodoA = new NodoEnemigo; nodoA->enemigo.id = 1;
     NodoEnemigo* nodoB = new NodoEnemigo; nodoB->enemigo.id = 2;
     NodoEnemigo* nodoC = new NodoEnemigo; nodoC->enemigo.id = 3;
@@ -97,21 +117,21 @@ bool ProbarP02() {
     lista.InsertarFinal(nodoB);
     lista.InsertarFinal(nodoC);
 
-    // Eliminar la CABEZA 
+    // Eliminamos la cabeza (nodoA); nodoB debe ser la nueva cabeza con anterior en NULL
     lista.Eliminar(nodoA);
 
-    if (lista.Primero() != nodoB) return false;          // Nueva cabeza debe ser B
-    if (lista.Primero()->anterior != NULL) return false; // Su 'anterior' debe ser NULL
+    if (lista.Primero() != nodoB) return false;
+    if (lista.Primero()->anterior != NULL) return false;
     if (lista.Tamano() != 2) return false;
 
-    // Eliminar la COLA 
+    // Eliminamos la cola (nodoC); nodoB pasa a ser tambien la cola con siguiente en NULL
     lista.Eliminar(nodoC);
 
-    if (lista.Ultimo() != nodoB) return false;          // Nueva cola debe ser B
-    if (lista.Ultimo()->siguiente != NULL) return false; // Su 'siguiente' debe ser NULL
+    if (lista.Ultimo() != nodoB) return false;
+    if (lista.Ultimo()->siguiente != NULL) return false;
     if (lista.Tamano() != 1) return false;
 
-    //Eliminar el nodo restante 
+    // Eliminamos el ultimo nodo restante
     lista.Eliminar(nodoB);
 
     if (lista.Tamano() != 0 || lista.Primero() != NULL || lista.Ultimo() != NULL) {
@@ -121,6 +141,13 @@ bool ProbarP02() {
     return true;
 }
 
+/*
+ * Funcion: ProbarP03
+ * Descripcion: Prueba el metodo InsertarDespues en la lista doble cuando se inserta
+ * justamente despues del ultimo nodo (cola), verificando que la cola se actualice.
+ * Entradas: Ninguna
+ * Salidas: True si la cola y todos los enlaces bidireccionales quedan consistentes
+ */
 bool ProbarP03() {
     ListaEnemigos lista;
 
@@ -130,29 +157,27 @@ bool ProbarP03() {
     lista.InsertarFinal(n1);
     lista.InsertarFinal(n2);
 
-    // En este momento, la cola es n2
     if (lista.Ultimo() != n2) return false;
 
-    // Insertamos n3 DESPUÉS del último nodo
+    // Insertamos n3 justo despues de n2 (que es la cola actual)
     NodoEnemigo* n3 = new NodoEnemigo; n3->enemigo.id = 3;
     lista.InsertarDespues(n2, n3);
 
-    // Verificación La cola de la lista DEBE haberse actualizado a n3
+    // La cola de la estructura debe actualizarse a n3
     if (lista.Ultimo() != n3) {
         return false;
     }
 
-    // Verificación El tamaño debe ser 3
     if (lista.Tamano() != 3) {
         return false;
     }
 
-    // Verificación Las conexiones de n3 deben ser correctas
+    // Validamos los enlaces del nuevo nodo en el extremo
     if (n3->siguiente != NULL) return false;
     if (n3->anterior != n2) return false;
     if (n2->siguiente != n3) return false;
 
-    // Verificación Recorrido hacia atrás desde la nueva cola
+    // Recorrido inverso para verificar que los punteros hacia atras esten conectados
     NodoEnemigo* aux = lista.Ultimo();
     if (aux->enemigo.id != 3) return false;
     aux = aux->anterior;
@@ -164,64 +189,70 @@ bool ProbarP03() {
     return true;
 }
 
-// Función de condición para marcar balas
+/*
+ * Funcion: EsBalaMarcada
+ * Descripcion: Predicado auxiliar para probar el filtrado de balas; marca como eliminables las de duenio 0.
+ * Entradas: b (instancia de Bala)
+ * Salidas: True si el duenio es 0, false de lo contrario
+ */
 bool EsBalaMarcada(Bala b) {
-    return b.duenio == 0; // Las balas con dueño 0 deben borrarse
+    return b.duenio == 0;
 }
 
+/*
+ * Funcion: ProbarP04
+ * Descripcion: Prueba la eliminacion condicional en la lista simple de balas usando
+ * puntero doble (EliminarSi). Valida la eliminacion de nodos consecutivos en cabeza y en medio.
+ * Entradas: Ninguna
+ * Salidas: True si los elementos marcados se eliminan sin romper la cadena
+ */
 bool ProbarP04() {
     ListaBalas lista;
 
-    //Como AgregarInicio inserta por la cabeza, las agregamos en orden inverso:
+    // Insertamos al inicio en orden inverso para obtener la secuencia deseada:
+    // b1 (borrar), b2 (borrar), b3 (valida 1), b4 (borrar), b5 (borrar), b6 (valida 2)
 
-    // Válida 2 (duenio = 2)
     NodoBala* b6 = new NodoBala; b6->bala.duenio = 2; b6->siguiente = NULL;
     lista.AgregarInicio(b6);
 
-    // Borrar consecutiva (duenio = 0)
     NodoBala* b5 = new NodoBala; b5->bala.duenio = 0; b5->siguiente = NULL;
     lista.AgregarInicio(b5);
 
-    // Borrar (duenio = 0)
     NodoBala* b4 = new NodoBala; b4->bala.duenio = 0; b4->siguiente = NULL;
     lista.AgregarInicio(b4);
 
-    // Válida 1 (duenio = 1)
     NodoBala* b3 = new NodoBala; b3->bala.duenio = 1; b3->siguiente = NULL;
     lista.AgregarInicio(b3);
 
-    // Borrar consecutiva (duenio = 0)
     NodoBala* b2 = new NodoBala; b2->bala.duenio = 0; b2->siguiente = NULL;
     lista.AgregarInicio(b2);
 
-    // Borrar CABEZA (duenio = 0)
     NodoBala* b1 = new NodoBala; b1->bala.duenio = 0; b1->siguiente = NULL;
     lista.AgregarInicio(b1);
 
-    // Estado inicial 6 balas, 4 marcadas para borrar 
     if (lista.Tamano() != 6) return false;
 
-    // Ejecutamos tu función con doble puntero
+    // Ejecutamos la eliminacion con puntero doble
     lista.EliminarSi(EsBalaMarcada);
 
-    // Verificación  El tamaño resultante debe ser exactamente 2
+    // Deben quedar unicamente las 2 balas validas
     if (lista.Tamano() != 2) {
         return false;
     }
 
-    // Verificación La nueva cabeza debe ser Válida 1 
+    // Comprobamos que la cabeza sea la bala valida 1
     NodoBala* aux = lista.ObtenerCabeza();
     if (aux == NULL || aux->bala.duenio != 1) {
         return false;
     }
 
-    // Verificación El segundo nodo debe ser Válida 2 
+    // Comprobamos que el segundo elemento sea la bala valida 2
     aux = aux->siguiente;
     if (aux == NULL || aux->bala.duenio != 2) {
         return false;
     }
 
-    // Verificación El siguiente debe ser NULL
+    // El enlace del ultimo debe apuntar a NULL
     if (aux->siguiente != NULL) {
         return false;
     }
@@ -229,16 +260,23 @@ bool ProbarP04() {
     return true;
 }
 
+/*
+ * Funcion: ProbarP05
+ * Descripcion: Prueba el comportamiento FIFO de la cola de aparicion (ColaSpawn).
+ * Encola 3 elementos, valida el orden de salida por tick y prueba intentos de desencolar en vacio.
+ * Entradas: Ninguna
+ * Salidas: True si el orden FIFO y los valores coinciden exactamente
+ */
 bool ProbarP05() {
     ColaSpawn cola;
     Spawn temp;
 
-    // Verificación inicial desencolar en vacía DEBE retornar false
+    // Desencolar de una cola vacia debe retornar false sin caerse
     if (cola.Desencolar(temp) != false) return false;
     if (cola.VerFrente() != NULL) return false;
     if (!cola.Vacia() || cola.Tamano() != 0) return false;
 
-    // Encolamos 3 enemigos con diferentes ticks
+    // Encolamos 3 eventos de aparicion con ticks crecientes
     Spawn s1 = { 60, DRON, CIAN, 0, 0 };
     Spawn s2 = { 85, GIRADOR, MAGENTA, 45, 0 };
     Spawn s3 = { 110, DIVISOR, AMBAR, 90, 0 };
@@ -249,33 +287,36 @@ bool ProbarP05() {
 
     if (cola.Tamano() != 3) return false;
 
-    // Desencolar en orden FIFO
-    // Sale el primero (tick 60)
+    // Desencolamos verificando el orden de llegada (FIFO)
     if (!cola.Desencolar(temp) || temp.tick != 60) return false;
     if (cola.Tamano() != 2) return false;
 
-    // Sale el segundo (tick 85)
     if (!cola.Desencolar(temp) || temp.tick != 85) return false;
     if (cola.Tamano() != 1) return false;
 
-    // Sale el tercero y ÚLTIMO (tick 110)
     if (!cola.Desencolar(temp) || temp.tick != 110) return false;
 
-    // Verificación final: La cola quedó completamente vacía
+    // Comprobamos que la cola quedo completamente vacia
     if (cola.Tamano() != 0) return false;
     if (!cola.Vacia()) return false;
     if (cola.VerFrente() != NULL) return false;
 
-    // Desencolar de nuevo en vacía debe retornar false
     if (cola.Desencolar(temp) != false) return false;
 
     return true;
 }
 
+/*
+ * Funcion: ProbarP06
+ * Descripcion: Prueba que el constructor de copia de ColaSpawn realice una copia profunda
+ * real de cada nodo. Destruir o vaciar la copia no debe alterar ni corromper la cola original.
+ * Entradas: Ninguna
+ * Salidas: True si la cola original sobrevive intacta tras la destruccion de la copia
+ */
 bool ProbarP06() {
     ColaSpawn original;
 
-    // Llenamos la cola original con 3 enemigos
+    // Cargamos 3 enemigos en la cola original
     Spawn s1 = { 10, DRON, CIAN, 0, 0 };
     Spawn s2 = { 20, TANQUE, MAGENTA, 180, 0 };
     Spawn s3 = { 30, DIVISOR, AMBAR, 90, 0 };
@@ -286,16 +327,14 @@ bool ProbarP06() {
 
     if (original.Tamano() != 3) return false;
 
-    // Bloque anidado para probar ciclo de vida y destrucción de la copia
+    // Abrimos un bloque anidado para que la variable 'copia' se destruya al salir del alcance
     {
-        // Se ejecuta tu Constructor de Copia Profunda
         ColaSpawn copia(original);
 
-        // Verificamos que la copia tenga los datos
         if (copia.Tamano() != 3) return false;
         if (copia.VerFrente() == NULL || copia.VerFrente()->tick != 10) return false;
 
-        // vaciamos la copia completamente
+        // Vaciamos la copia entera
         Spawn salida;
         while (!copia.Vacia()) {
             copia.Desencolar(salida);
@@ -303,18 +342,14 @@ bool ProbarP06() {
 
         if (copia.Tamano() != 0 || !copia.Vacia()) return false;
 
-        // verificacion La original DEBE seguir intacta
+        // La cola original no debe haber sido tocada
         if (original.Tamano() != 3) return false;
         if (original.VerFrente() == NULL || original.VerFrente()->tick != 10) return false;
-
-        
     }
 
-    //  Fuera del bloque la copia ya murió y liberó su memoria.
-    // La original debe seguir viva sin punteros rotos ni doble liberación.
+    // Fuera del bloque, la copia ya llamo a su destructor; verificamos que la original no sufrio doble liberacion
     if (original.Tamano() != 3) return false;
 
-    // Vaciamos la original y comprobamos que sus nodos siguen perfectos
     Spawn temp;
     if (!original.Desencolar(temp) || temp.tick != 10) return false;
     if (!original.Desencolar(temp) || temp.tick != 20) return false;
@@ -325,10 +360,17 @@ bool ProbarP06() {
     return true;
 }
 
+/*
+ * Funcion: ProbarP07
+ * Descripcion: Prueba la lista circular doblemente enlazada de jugadores (RondaJugadores).
+ * Valida rotacion horaria y antihoraria, eliminacion del jugador de turno y desocupado total.
+ * Entradas: Ninguna
+ * Salidas: True si el orden circular y las bajas funcionan de acuerdo a la especificacion
+ */
 bool ProbarP07() {
     RondaJugadores ronda;
 
-    // Creamos 3 jugadores de prueba
+    // Creamos 3 jugadores dinamicos de prueba
     Jugador* j1 = new Jugador; j1->alias = "Ana";
     Jugador* j2 = new Jugador; j2->alias = "Luis";
     Jugador* j3 = new Jugador; j3->alias = "Carlos";
@@ -339,10 +381,9 @@ bool ProbarP07() {
 
     if (ronda.Tamano() != 3) return false;
 
-    // Probar rotación en ambos sentidos
     if (ronda.VerActual() != j1) return false;
 
-    // Horario
+    // Probamos rotacion horaria (Ana -> Luis -> Carlos -> Ana)
     ronda.Avanzar(true);
     if (ronda.VerActual() != j2) return false;
     ronda.Avanzar(true);
@@ -350,40 +391,39 @@ bool ProbarP07() {
     ronda.Avanzar(true);
     if (ronda.VerActual() != j1) return false;
 
-    // Antihorario
+    // Probamos rotacion antihoraria (Ana -> Carlos -> Luis)
     ronda.Avanzar(false);
     if (ronda.VerActual() != j3) return false; 
     ronda.Avanzar(false);
     if (ronda.VerActual() != j2) return false;
 
-    // Eliminar al jugador actual y avanzar horario
+    // Eliminamos a Luis (actual) en sentido horario; el siguiente debe ser Carlos
     Jugador* eliminado1 = ronda.EliminarActual(true);
     if (eliminado1 != j2) return false;
     if (ronda.Tamano() != 2) return false;
     if (ronda.VerActual() != j3) return false;
 
-    // Eliminar a J3 y dejar un ÚNICO jugador
+    // Eliminamos a Carlos; debe quedar solo Ana
     Jugador* eliminado2 = ronda.EliminarActual(true);
     if (eliminado2 != j3) return false;
     if (ronda.Tamano() != 1) return false;
     if (ronda.VerActual() != j1) return false;
 
-    // Con 1 solo jugador, rotar hacia adelante o hacia atrás debe mantenerse en J1
+    // Con un unico jugador, rotar hacia cualquier sentido debe mantenerlo en si mismo
     ronda.Avanzar(true);
     if (ronda.VerActual() != j1) return false;
     ronda.Avanzar(false);
     if (ronda.VerActual() != j1) return false;
 
-    // 4. Eliminar al ÚLTIMO y ÚNICO jugador
+    // Eliminamos al ultimo jugador; la estructura debe quedar vacia
     Jugador* eliminado3 = ronda.EliminarActual(true);
     if (eliminado3 != j1) return false;
 
-    // La ronda debe quedar totalmente vacía y limpia
     if (ronda.Tamano() != 0 || !ronda.Vacia() || ronda.VerActual() != NULL) {
         return false;
     }
 
-    // Liberamos la memoria de los structs de los jugadores
+    // Liberamos los registros de jugadores creados en memoria dinamica
     delete j1;
     delete j2;
     delete j3;
@@ -391,11 +431,18 @@ bool ProbarP07() {
     return true;
 }
 
+/*
+ * Funcion: ProbarP08
+ * Descripcion: Prueba el determinismo del motor simulando dos turnos independientes
+ * con la misma semilla (42) y las mismas acciones; valida que el estado y los eventos coincidan.
+ * Entradas: Ninguna
+ * Salidas: True si ambas simulaciones producen resultados identicos tick por tick
+ */
 bool ProbarP08() {
     uint32_t semilla = 42;
     int oleada = 1;
 
-    // Ejecucion 1
+    // Primera simulacion
     Jugador j1;
     j1.alias = "TestBot";
     j1.esBot = true;
@@ -420,7 +467,7 @@ bool ProbarP08() {
         motor1.ActualizarTick(act);
     }
 
-    // Ejecucion 2 con misma semilla e identicas acciones
+    // Segunda simulacion con datos y comandos identicos
     Jugador j2;
     j2.alias = "TestBot";
     j2.esBot = true;
@@ -445,7 +492,7 @@ bool ProbarP08() {
         motor2.ActualizarTick(act);
     }
 
-    // Comparacion estricta de estado final
+    // Verificamos que las variables del jugador y las listas del motor sean identicas
     if (j1.vidaNucleo != j2.vidaNucleo) return false;
     if (j1.puntaje != j2.puntaje) return false;
     if (j1.combo != j2.combo) return false;
@@ -457,7 +504,7 @@ bool ProbarP08() {
     if (motor1.GetCorrectosTurno() != motor2.GetCorrectosTurno()) return false;
     if (motor1.GetErroneosTurno() != motor2.GetErroneosTurno()) return false;
 
-    // Comparacion de eventos en la bitacora
+    // Verificamos que cada evento registrado en la bitacora LIFO sea exactamente igual
     if (bitacora1.Tamano() != bitacora2.Tamano()) return false;
     NodoEvento* e1 = bitacora1.ObtenerCabeza();
     NodoEvento* e2 = bitacora2.ObtenerCabeza();
@@ -474,6 +521,14 @@ bool ProbarP08() {
     return true;
 }
 
+/*
+ * Funcion: ProbarP09
+ * Descripcion: Prueba la penalizacion de afinidad de color errónea: disparar bala de
+ * color Cian contra Tanque Magenta debe aumentar su radio (+9 u), resetear combo a 0
+ * y no reducir la vida del enemigo.
+ * Entradas: Ninguna
+ * Salidas: True si se cumplen las penalizaciones y se registra el evento IMPACTO_ERRONEO
+ */
 bool ProbarP09() {
     Jugador j;
     j.alias = "TestColor";
@@ -492,26 +547,28 @@ bool ProbarP09() {
     BitacoraEventos bitacora;
     Motor motor;
     motor.IniciarTurno(&j, 1, cola, &bitacora);
-    j.combo = 5; // re-asignar combo inicial
+    j.combo = 5;
 
+    // Disparamos con la fase en Cian directo hacia el Tanque Magenta en 270 grados
     for (int t = 0; t < 25; t++) {
         AccionTick act;
         act.anguloObjetivo = 270.0;
-        act.colorObjetivo = CIAN; // Color Cian dispara contra Tanque Magenta
+        act.colorObjetivo = CIAN;
         act.activarPulso = false;
         motor.ActualizarTick(act);
         if (motor.GetErroneosTurno() > 0) break;
     }
 
-    // Verificaciones:
+    // Validamos penalizaciones de la regla del juego
     if (motor.GetErroneosTurno() != 1) return false;
-    if (j.combo != 0) return false; // Combo reseteado a 0
+    if (j.combo != 0) return false;
     if (motor.GetListaEnemigos().Tamano() != 1) return false;
     NodoEnemigo* nodoTanque = motor.GetListaEnemigos().Primero();
     if (nodoTanque == NULL) return false;
-    if (nodoTanque->enemigo.vida != 3) return false; // Vida sin cambio
-    if (nodoTanque->enemigo.r < 285.0) return false; // r aumento 9 u
+    if (nodoTanque->enemigo.vida != 3) return false;
+    if (nodoTanque->enemigo.r < 285.0) return false;
 
+    // Comprobamos que el evento haya quedado registrado en la bitacora
     bool eventoRegistrado = false;
     NodoEvento* ev = bitacora.ObtenerCabeza();
     while (ev != NULL) {
@@ -525,6 +582,14 @@ bool ProbarP09() {
     return eventoRegistrado;
 }
 
+/*
+ * Funcion: ProbarP10
+ * Descripcion: Prueba la division de un enemigo Divisor: al ser destruido debe generar
+ * 2 enemigos Mini a +-4 grados con colores distintos entre si y distintos al Divisor original,
+ * insertandolos ordenadamente en la lista doble.
+ * Entradas: Ninguna
+ * Salidas: True si los 2 Minis quedan insertados con radios y angulos validos
+ */
 bool ProbarP10() {
     ListaEnemigos lista;
 
@@ -563,10 +628,12 @@ bool ProbarP10() {
 
     if (lista.Tamano() != 3) return false;
 
+    // Generamos los 2 Minis y removemos el Divisor
     int siguienteId = 10;
     GenerarMinis(nDivisor, lista, 1, siguienteId);
     lista.Eliminar(nDivisor);
 
+    // La lista ahora debe tener 4 elementos (nA, mini1, mini2, nB)
     if (lista.Tamano() != 4) return false;
 
     NodoEnemigo* primero = lista.Primero();
@@ -581,28 +648,40 @@ bool ProbarP10() {
     if (m2->siguiente != nB) return false;
     if (lista.Ultimo() != nB) return false;
 
+    // Verificamos que conserven el mismo radio que el divisor original
     if (std::abs(m1->enemigo.r - 180.0) > 0.001) return false;
     if (std::abs(m2->enemigo.r - 180.0) > 0.001) return false;
 
+    // Verificamos separacion angular de 4 grados (120 +- 4 = 116 y 124)
     double t1 = m1->enemigo.theta;
     double t2 = m2->enemigo.theta;
     bool angulosCorrectos = (std::abs(t1 - 116.0) < 0.001 && std::abs(t2 - 124.0) < 0.001) ||
                             (std::abs(t1 - 124.0) < 0.001 && std::abs(t2 - 116.0) < 0.001);
     if (!angulosCorrectos) return false;
 
+    // Verificamos que los colores de los Minis sean diferentes al Cian del Divisor y diferentes entre si
     Color c1 = m1->enemigo.color;
     Color c2 = m2->enemigo.color;
     if (c1 == CIAN || c2 == CIAN) return false;
     if (c1 == c2) return false;
     if (!((c1 == MAGENTA && c2 == AMBAR) || (c1 == AMBAR && c2 == MAGENTA))) return false;
 
+    // Verificamos enlaces hacia atras
     if (nB->anterior != m2 || m2->anterior != m1 || m1->anterior != nA) return false;
 
     return true;
 }
 
+/*
+ * Funcion: ProbarP11
+ * Descripcion: Prueba el funcionamiento del pulso electromagnetico (EMP).
+ * Con carga < 100 no se activa; con carga = 100 se activa la onda expansiva,
+ * destruye enemigos dentro de la banda de choque y resetea la carga a 0.
+ * Entradas: Ninguna
+ * Salidas: True si la onda se propaga y destruye enemigos registrando el evento
+ */
 bool ProbarP11() {
-    // Parte 1: Carga menor a 100 (sin efecto)
+    // Parte 1: Carga menor a 100 no debe disparar el pulso
     {
         Jugador j;
         j.alias = "TestPulso1";
@@ -635,7 +714,7 @@ bool ProbarP11() {
         if (motor.GetListaEnemigos().Tamano() != 1) return false;
     }
 
-    // Parte 2: Carga igual a 100 (activacion y destruccion en banda)
+    // Parte 2: Carga al 100% activa la onda y elimina enemigos
     {
         Jugador j;
         j.alias = "TestPulso2";
@@ -665,6 +744,7 @@ bool ProbarP11() {
         if (!motor.EsPulsoActivo()) return false;
         if (j.cargaPulso != 0) return false;
 
+        // Avanzamos los ticks necesarios para que la onda de radio alcance al enemigo
         for (int t = 1; t < 30; t++) {
             act.activarPulso = false;
             motor.ActualizarTick(act);
@@ -687,31 +767,40 @@ bool ProbarP11() {
     return true;
 }
 
-
-
-
-// Función auxiliar para verificar si una lista enlazada está ordenada ascendente
+/*
+ * Funcion: ListaEstaOrdenada
+ * Descripcion: Helper que recorre una lista simple de puntajes para verificar si esta en orden ascendente.
+ * Entradas: cabeza (puntero al primer nodo de la lista)
+ * Salidas: True si la lista esta ordenada de menor a mayor, false en caso contrario
+ */
 bool ListaEstaOrdenada(NodoPuntaje* cabeza) {
     if (cabeza == NULL) return true;
     NodoPuntaje* actual = cabeza;
     while (actual->siguiente != NULL) {
         if (actual->valor > actual->siguiente->valor) {
-            return false; // Encontró un elemento mayor antes que uno menor
+            return false;
         }
         actual = actual->siguiente;
     }
     return true;
 }
 
+/*
+ * Funcion: ProbarP12
+ * Descripcion: Prueba el algoritmo Merge Sort y el calculo de la mediana en ListaPuntajes.
+ * Cubre casos de lista vacia, 1 elemento, elementos desordenados, ordenados, orden inverso y longitud par con repetidos.
+ * Entradas: Ninguna
+ * Salidas: True si todos los casos de ordenamiento y calculo estadistico son correctos
+ */
 bool ProbarP12() {
-    // Caso Lista VACÍA
+    // Caso 1: Lista vacia
     {
         ListaPuntajes l;
         l.MergeSort();
         if (l.Tamano() != 0 || l.ObtenerMediana() != 0.0) return false;
     }
 
-    //Caso Lista de 1 ELEMENTO
+    // Caso 2: Lista con 1 solo elemento
     {
         ListaPuntajes l;
         l.InsertarFinal(42);
@@ -719,18 +808,17 @@ bool ProbarP12() {
         if (!ListaEstaOrdenada(l.ObtenerCabeza()) || l.ObtenerMediana() != 42.0) return false;
     }
 
-    //Caso Lista de 2 ELEMENTOS desordenados
+    // Caso 3: Lista de 2 elementos desordenados (mediana con N par)
     {
         ListaPuntajes l;
         l.InsertarFinal(50);
         l.InsertarFinal(10);
         l.MergeSort();
         if (!ListaEstaOrdenada(l.ObtenerCabeza())) return false;
-        // Mediana con N par (10 y 50): (10 + 50) / 2.0 = 30.0
         if (l.ObtenerMediana() != 30.0) return false;
     }
 
-    //Caso Lista YA ORDENADA
+    // Caso 4: Lista ya ordenada
     {
         ListaPuntajes l;
         l.InsertarFinal(10);
@@ -743,7 +831,7 @@ bool ProbarP12() {
         if (l.ObtenerMediana() != 30.0) return false;
     }
 
-    //Caso Lista INVERSA 
+    // Caso 5: Lista en orden inverso
     {
         ListaPuntajes l;
         l.InsertarFinal(100);
@@ -756,7 +844,7 @@ bool ProbarP12() {
         if (l.ObtenerMediana() != 60.0) return false;
     }
 
-    //Caso Lista con REPETIDOS y N par 
+    // Caso 6: Lista con duplicados y longitud par
     {
         ListaPuntajes l;
         l.InsertarFinal(7);
@@ -767,17 +855,23 @@ bool ProbarP12() {
         l.InsertarFinal(2);
         l.MergeSort();
         if (!ListaEstaOrdenada(l.ObtenerCabeza())) return false;
-        
         if (l.ObtenerMediana() != 4.5) return false;
     }
 
-    return true; // Pasó todos los escenarios
+    return true;
 }
 
+/*
+ * Funcion: ProbarP13
+ * Descripcion: Prueba la persistencia en disco guardando un CSV, inyectando manualmente
+ * una linea corrupta para simular un archivo danado, y verificando que CargarCSV omita la linea invalida sin caerse.
+ * Entradas: Ninguna
+ * Salidas: True si los datos validos persisten y la linea defectuosa es descartada correctamente
+ */
 bool ProbarP13() {
     const std::string archivoPrueba = "test_historial_temp.csv";
 
-    // Crear historial original y agregar 2 registros válidos
+    // Guardamos 2 registros validos en el archivo de prueba
     HistorialPartidas original;
 
     RegistroPartida r1 = { 1, 42, "por_turnos", "Ana", false, 1, 2500, 5, 100, 80, 20, 15, 2, 22, 1800, 10, 4, 2, 4, 1, 0 };
@@ -786,38 +880,43 @@ bool ProbarP13() {
     original.AgregarFinal(r1);
     original.AgregarFinal(r2);
 
-    // Guardamos en el archivo CSV
     if (!original.GuardarCSV(archivoPrueba)) {
         return false;
     }
 
-    // Inyectamos a propósito una LÍNEA INVÁLIDA 
+    // Inyectamos intencionalmente una linea con formato incompleto
     {
         std::ofstream corruptor(archivoPrueba, std::ios::app);
         corruptor << "linea_corrupta,invalida,999\n";
     }
 
-    // Simular "reiniciar el programa, Creamos una instancia nueva e independiente
+    // Creamos una nueva instancia limpia para comprobar la lectura
     HistorialPartidas cargado;
 
-    // Cargamos el archivo (debe omitir la línea corrupta y reportarla)
     if (!cargado.CargarCSV(archivoPrueba)) {
         std::remove(archivoPrueba.c_str());
         return false;
     }
 
-    // Verificación: Solo deben existir los 2 registros válidos (la línea corrupta fue omitida)
+    // Comprobamos que unicamente se cargaron los 2 registros validos
     if (cargado.Tamano() != 2) {
         std::remove(archivoPrueba.c_str());
         return false;
     }
 
-    // Borramos el archivo temporal para no dejar basura en el disco
+    // Limpiamos el archivo de prueba del disco
     std::remove(archivoPrueba.c_str());
 
     return true;
 }
 
+/*
+ * Funcion: ProbarP14
+ * Descripcion: Prueba de integracion completa: simula una partida entera con 4 bots
+ * a lo largo de 10 oleadas para asegurar que no se produzcan bloqueos, ciclos infinitos ni caidas de memoria.
+ * Entradas: Ninguna
+ * Salidas: True si la partida finaliza normalmente y todos los jugadores quedan clasificados
+ */
 bool ProbarP14() {
     SesionJuego sesion;
     sesion.RegistrarJugador("BOT1", true);
@@ -832,6 +931,7 @@ bool ProbarP14() {
     int totalTicksSimulados = 0;
     const int MAX_TICKS_SEGURIDAD = 60000;
 
+    // Bucle de ejecucion de la sesion por turnos
     while (!sesion.EstaTerminada() && totalTicksSimulados < MAX_TICKS_SEGURIDAD) {
         if (sesion.ComenzarTurno()) {
             while (sesion.TurnoEnCurso() && totalTicksSimulados < MAX_TICKS_SEGURIDAD) {
@@ -859,7 +959,13 @@ bool ProbarP14() {
     return true;
 }
 
-
+/*
+ * Funcion: EjecutarTodasLasPruebas
+ * Descripcion: Ejecuta secuencialmente las 14 pruebas unitarias de la suite y muestra en consola
+ * el resultado detallado de cada una junto con el balance total de pruebas superadas.
+ * Entradas: Ninguna
+ * Salidas: Imprime el reporte en la salida estandar
+ */
 void EjecutarTodasLasPruebas() {
     std::cout << "========================================\n";
     std::cout << "      BANCO DE PRUEBAS MINIMAS (14/14)  \n";

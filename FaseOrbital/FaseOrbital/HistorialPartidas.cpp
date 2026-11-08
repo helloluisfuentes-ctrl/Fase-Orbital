@@ -6,14 +6,26 @@
 #include <iomanip>
 
 // ==========================================
-// MÉTODOS BÁSICOS DE ListaPuntajes
+// METODOS DE ListaPuntajes
 // ==========================================
 
+/*
+ * Funcion: Constructor ListaPuntajes
+ * Descripcion: Inicializa la lista auxiliar de puntajes vacia con cabeza en NULL y tamano en cero.
+ * Entradas: Ninguna
+ * Salidas: Instancia creada
+ */
 ListaPuntajes::ListaPuntajes() {
     cabeza = NULL;
     tam = 0;
 }
 
+/*
+ * Funcion: Destructor ~ListaPuntajes
+ * Descripcion: Recorre la lista de puntajes liberando la memoria de cada nodo con delete.
+ * Entradas: Ninguna
+ * Salidas: Memoria liberada
+ */
 ListaPuntajes::~ListaPuntajes() {
     NodoPuntaje* aux = cabeza;
     while (aux != NULL) {
@@ -24,6 +36,12 @@ ListaPuntajes::~ListaPuntajes() {
     tam = 0;
 }
 
+/*
+ * Funcion: InsertarFinal
+ * Descripcion: Agrega un nuevo valor numerico al final de la lista auxiliar.
+ * Entradas: int valor (puntaje obtenido en una partida)
+ * Salidas: Lista con el nuevo puntaje al final
+ */
 void ListaPuntajes::InsertarFinal(int valor) {
     NodoPuntaje* nuevo = new NodoPuntaje;
     nuevo->valor = valor;
@@ -42,10 +60,16 @@ void ListaPuntajes::InsertarFinal(int valor) {
 }
 
 // ==========================================
-// MERGE SORT SOBRE LISTA ENLAZADA
+// MERGE SORT SOBRE LISTAS ENLAZADAS
 // ==========================================
 
-// Dividir la lista en dos mitades usando la Liebre y la Tortuga
+/*
+ * Funcion: Dividir
+ * Descripcion: Parte la lista enlazada en dos mitades usando la tecnica de dos punteros (liebre y tortuga).
+ *              El puntero rapido avanza de dos en dos y el lento de uno en uno hasta alcanzar el punto medio en O(n).
+ * Entradas: NodoPuntaje* fuente (cabeza del segmento de lista a dividir)
+ * Salidas: Retorna el puntero al inicio de la segunda mitad y corta el enlace de la primera mitad en NULL
+ */
 NodoPuntaje* ListaPuntajes::Dividir(NodoPuntaje* fuente) {
     if (fuente == NULL || fuente->siguiente == NULL) {
         return NULL;
@@ -54,24 +78,30 @@ NodoPuntaje* ListaPuntajes::Dividir(NodoPuntaje* fuente) {
     NodoPuntaje* lento = fuente;
     NodoPuntaje* rapido = fuente->siguiente;
 
-    // La liebre avanza 2 nodos, la tortuga avanza 1 nodo
+    // La liebre avanza 2 nodos mientras la tortuga avanza 1 nodo
     while (rapido != NULL && rapido->siguiente != NULL) {
         lento = lento->siguiente;
         rapido = rapido->siguiente->siguiente;
     }
 
     NodoPuntaje* mitad = lento->siguiente;
-    lento->siguiente = NULL; // Cortamos el enlace para separar las dos listas
+    lento->siguiente = NULL; // Cortamos el enlace para separar formalmente las dos listas
 
     return mitad;
 }
 
-// Fusionar dos listas ordenadas en una sola
+/*
+ * Funcion: Fusionar
+ * Descripcion: Une dos sublistas ya ordenadas comparando sus valores y reasignando punteros sin crear nodos nuevos.
+ * Entradas: NodoPuntaje* a, NodoPuntaje* b (cabezas de las dos sublistas ordenadas)
+ * Salidas: Retorna la cabeza de la lista combinada y ordenada
+ */
 NodoPuntaje* ListaPuntajes::Fusionar(NodoPuntaje* a, NodoPuntaje* b) {
     NodoPuntaje dummy;
     dummy.siguiente = NULL;
     NodoPuntaje* actual = &dummy;
 
+    // Comparamos los valores de ambos frentes y enlazamos el menor
     while (a != NULL && b != NULL) {
         if (a->valor <= b->valor) {
             actual->siguiente = a;
@@ -83,32 +113,53 @@ NodoPuntaje* ListaPuntajes::Fusionar(NodoPuntaje* a, NodoPuntaje* b) {
         actual = actual->siguiente;
     }
 
+    // Enganchamos los nodos sobrantes de la lista que no se haya terminado
     if (a != NULL) actual->siguiente = a;
     else if (b != NULL) actual->siguiente = b;
 
     return dummy.siguiente;
 }
 
-// Merge sort recursivo 
+/*
+ * Funcion: MergeSortRec
+ * Descripcion: Metodo recursivo que divide la lista a la mitad y fusiona los resultados ordenados en O(n log n).
+ * Entradas: NodoPuntaje* nodo (cabeza del tramo a ordenar)
+ * Salidas: Retorna la nueva cabeza del tramo completamente ordenado
+ */
 NodoPuntaje* ListaPuntajes::MergeSortRec(NodoPuntaje* nodo) {
+    // Caso base: lista vacia o de un solo nodo (ya esta ordenada)
     if (nodo == NULL || nodo->siguiente == NULL) {
         return nodo;
     }
 
+    // Dividimos la lista en dos partes
     NodoPuntaje* segundaMitad = Dividir(nodo);
 
+    // Ordenamos recursivamente ambas mitades
     nodo = MergeSortRec(nodo);
     segundaMitad = MergeSortRec(segundaMitad);
 
+    // Fusionamos las dos partes ordenadas
     return Fusionar(nodo, segundaMitad);
 }
 
-// Inicia el Merge Sort
+/*
+ * Funcion: MergeSort
+ * Descripcion: Metodo publico que inicia el ordenamiento Merge Sort sobre la cabeza de la lista.
+ * Entradas: Ninguna
+ * Salidas: Modifica la lista reordenando los nodos de menor a mayor
+ */
 void ListaPuntajes::MergeSort() {
     cabeza = MergeSortRec(cabeza);
 }
 
-// Cálculo de la mediana sobre la lista ordenada
+/*
+ * Funcion: ObtenerMediana
+ * Descripcion: Calcula la mediana de los puntajes recorriendo la lista previamente ordenada.
+ *              Si el tamano es impar toma el valor central; si es par promedia los dos del centro.
+ * Entradas: Ninguna
+ * Salidas: Valor decimal de la mediana
+ */
 double ListaPuntajes::ObtenerMediana() const {
     if (cabeza == NULL || tam == 0) {
         return 0.0;
@@ -117,12 +168,15 @@ double ListaPuntajes::ObtenerMediana() const {
     int indiceMedio = tam / 2;
     NodoPuntaje* aux = cabeza;
 
+    // Caso impar: avanzamos exactamente hasta la posicion central
     if (tam % 2 != 0) {
         for (int i = 0; i < indiceMedio; i++) {
             aux = aux->siguiente;
         }
         return static_cast<double>(aux->valor);
-    } else {
+    } 
+    // Caso par: necesitamos el promedio entre el nodo indiceMedio-1 y el nodo indiceMedio
+    else {
         NodoPuntaje* anterior = NULL;
         for (int i = 0; i < indiceMedio; i++) {
             anterior = aux;
@@ -133,17 +187,27 @@ double ListaPuntajes::ObtenerMediana() const {
 }
 
 // ========================================================================================================
-// MÉTODOS DE HistorialPartidas
+// METODOS DE HistorialPartidas
 // ========================================================================================================
 
-//constructor
+/*
+ * Funcion: Constructor HistorialPartidas
+ * Descripcion: Inicializa la lista de registros vacia con cabeza y cola en NULL y tamano en cero.
+ * Entradas: Ninguna
+ * Salidas: Instancia creada
+ */
 HistorialPartidas::HistorialPartidas() {
     cabeza = NULL;
     cola = NULL;
     tam = 0;
 }
 
-//destructor
+/*
+ * Funcion: Destructor ~HistorialPartidas
+ * Descripcion: Recorre la lista de registros y libera la memoria de cada fila cargada.
+ * Entradas: Ninguna
+ * Salidas: Memoria liberada
+ */
 HistorialPartidas::~HistorialPartidas() {
     NodoRegistro* aux = cabeza;
     while (aux != NULL) {
@@ -155,7 +219,12 @@ HistorialPartidas::~HistorialPartidas() {
     tam = 0;
 }
 
-//agrega un nodo al fina de la lista
+/*
+ * Funcion: AgregarFinal
+ * Descripcion: Inserta un registro de partida al final de la lista en O(1) usando el puntero cola.
+ * Entradas: const RegistroPartida& reg (datos de la partida finalizada)
+ * Salidas: Lista con el registro agregado al final
+ */
 void HistorialPartidas::AgregarFinal(const RegistroPartida& reg) {
     NodoRegistro* nuevo = new NodoRegistro;
     nuevo->registro = reg;
@@ -171,7 +240,13 @@ void HistorialPartidas::AgregarFinal(const RegistroPartida& reg) {
     tam++;
 }
 
-//Buscamos el puntaje del alias en la lista y lo copiamos en el destino
+/*
+ * Funcion: CopiarPuntajes
+ * Descripcion: Filtra los registros que pertenezcan a un jugador especifico y copia sus puntajes
+ *              a una lista auxiliar de puntajes para poder ordenarlos con Merge Sort.
+ * Entradas: const std::string& aliasJugador, ListaPuntajes& destino
+ * Salidas: Lista auxiliar poblada con los puntajes de ese jugador
+ */
 void HistorialPartidas::CopiarPuntajes(const std::string& aliasJugador, ListaPuntajes& destino) const {
     NodoRegistro* aux = cabeza;
     while (aux != NULL) {
@@ -182,7 +257,13 @@ void HistorialPartidas::CopiarPuntajes(const std::string& aliasJugador, ListaPun
     }
 }
 
-//carga el archivo csv
+/*
+ * Funcion: CargarCSV
+ * Descripcion: Abre un archivo CSV, valida y parsea cada linea esperando exactamente 21 columnas.
+ *              Si una linea esta corrupta o tiene tipos invalidos, la reporta y la omite sin detener el programa.
+ * Entradas: const std::string& rutaArchivo (ruta al archivo .csv)
+ * Salidas: Retorna true si pudo abrir el archivo (o si estaba vacio), false si no se pudo abrir
+ */
 bool HistorialPartidas::CargarCSV(const std::string& rutaArchivo) {
     std::ifstream archivo(rutaArchivo);
     if (!archivo.is_open()) {
@@ -192,11 +273,12 @@ bool HistorialPartidas::CargarCSV(const std::string& rutaArchivo) {
     std::string linea;
     // Leer y descartar la cabecera
     if (!std::getline(archivo, linea)) {
-        return true; // Archivo vacío
+        return true; // Archivo vacio
     }
 
     int numLinea = 1;
 
+    // Procesamos linea por linea
     while (std::getline(archivo, linea)) {
         numLinea++;
         if (linea.empty()) continue;
@@ -206,6 +288,7 @@ bool HistorialPartidas::CargarCSV(const std::string& rutaArchivo) {
         std::string campos[21];
         int contadorCampos = 0;
 
+        // Separamos por comas los 21 campos del registro
         while (std::getline(ss, token, ',')) {
             if (contadorCampos < 21) {
                 campos[contadorCampos] = token;
@@ -213,13 +296,13 @@ bool HistorialPartidas::CargarCSV(const std::string& rutaArchivo) {
             contadorCampos++;
         }
 
-        // Si la fila no tiene exactamente 21 columnas
+        // Validacion de cantidad de columnas
         if (contadorCampos != 21) {
             std::cout << "Error: Linea " << numLinea << " mal formada (columnas invalidas). Omitiendo.\n";
             continue;
         }
 
-        // Conversión segura de tipos
+        // Conversion segura de tipos de datos para no botar el programa
         try {
             RegistroPartida reg;
             reg.idPartida = std::stoi(campos[0]);
@@ -254,16 +337,22 @@ bool HistorialPartidas::CargarCSV(const std::string& rutaArchivo) {
     return true;
 }
 
-//uarda en archivo csv
+/*
+ * Funcion: GuardarCSV
+ * Descripcion: Escribe todos los registros de la lista enlazada al archivo CSV con la cabecera correspondiente.
+ * Entradas: const std::string& rutaArchivo (ruta de destino del CSV)
+ * Salidas: Retorna true si se pudo escribir el archivo, false si hubo error al abrirlo
+ */
 bool HistorialPartidas::GuardarCSV(const std::string& rutaArchivo) const {
     std::ofstream archivo(rutaArchivo);
     if (!archivo.is_open()) {
         return false;
     }
 
-    // Cabecera 
+    // Escribimos la cabecera oficial
     archivo << "id_partida,semilla,modo,jugador,es_bot,posicion,puntaje,oleada,disparos,correctos,erroneos,combo_max,pulsos,dano_total,ticks,bajas_dron,bajas_girador,bajas_divisor,bajas_mini,bajas_tanque,bajas_camaleon\n";
 
+    // Recorremos secuencialmente la lista volcando cada fila
     NodoRegistro* aux = cabeza;
     while (aux != NULL) {
         const RegistroPartida& r = aux->registro;
@@ -294,7 +383,13 @@ bool HistorialPartidas::GuardarCSV(const std::string& rutaArchivo) const {
     return true;
 }
 
-//genera un reporte dado un alias
+/*
+ * Funcion: GenerarReporteJugador
+ * Descripcion: Recorre el historial calculando las metricas de un jugador (partidas, victorias, mejor/peor puntaje,
+ *              media, mediana mediante Merge Sort, desviacion estandar y precision) e imprime el reporte en consola.
+ * Entradas: const std::string& aliasJugador (nombre del jugador a evaluar)
+ * Salidas: Imprime el reporte estadistico en la consola estandar
+ */
 void HistorialPartidas::GenerarReporteJugador(const std::string& aliasJugador) const {
     int partidasJugadas = 0;
     int victorias = 0;
@@ -305,12 +400,10 @@ void HistorialPartidas::GenerarReporteJugador(const std::string& aliasJugador) c
     int totalCorrectos = 0;
     int totalErroneos = 0;
 
-    // Conteo para encontrar el tipo de enemigo que causó más daño
-    int danoDron = 0, danoGirador = 0, danoDivisor = 0, danoMini = 0, danoTanque = 0, danoCamaleon = 0;
-
     NodoRegistro* aux = cabeza;
     bool primeraPartida = true;
 
+    // Primer recorrido: calculamos suma de puntajes, mejor/peor y victorias
     while (aux != NULL) {
         if (aux->registro.jugador == aliasJugador) {
             const RegistroPartida& r = aux->registro;
@@ -342,16 +435,16 @@ void HistorialPartidas::GenerarReporteJugador(const std::string& aliasJugador) c
         return;
     }
 
-    //Media
+    // Media
     double media = static_cast<double>(sumaPuntajes) / partidasJugadas;
 
-    //Mediana usando Merge Sort sobre Lista Auxiliar 
+    // Mediana usando Merge Sort sobre lista enlazada auxiliar
     ListaPuntajes listaAux;
     CopiarPuntajes(aliasJugador, listaAux);
     listaAux.MergeSort();
     double mediana = listaAux.ObtenerMediana();
 
-    //Desviación estándar poblacional: sqrt( sum( (x_i - mu)^2 ) / N )
+    // Desviacion estandar poblacional en segundo recorrido: sqrt( sum( (x_i - mu)^2 ) / N )
     double sumaDiferenciasCuadrado = 0.0;
     aux = cabeza;
     while (aux != NULL) {
@@ -363,13 +456,13 @@ void HistorialPartidas::GenerarReporteJugador(const std::string& aliasJugador) c
     }
     double desviacionEstandar = std::sqrt(sumaDiferenciasCuadrado / partidasJugadas);
 
-    // Precisión de color promedio
+    // Precision de color promedio
     double precisionPromedio = 0.0;
     if ((totalCorrectos + totalErroneos) > 0) {
         precisionPromedio = (static_cast<double>(totalCorrectos) / (totalCorrectos + totalErroneos)) * 100.0;
     }
 
-    // Impresión del Reporte Estadístico (Sección 6.3)
+    // Impresion formal del reporte en consola
     std::cout << "\n============================================\n";
     std::cout << " ESTADISTICAS HISTORICAS: " << aliasJugador << "\n";
     std::cout << "============================================\n";

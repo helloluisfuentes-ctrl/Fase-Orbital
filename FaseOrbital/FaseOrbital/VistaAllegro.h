@@ -6,8 +6,14 @@
 #include "SesionJuego.h"
 #include "ReporteHistorico.h"
 
-// Version simple de la interfaz: lee el estado del motor, lo dibuja y le manda acciones.
+/*
+ * Archivo: VistaAllegro.h
+ * Descripcion: Modulo de interfaz grafica usando la libreria Allegro 5.
+ * Maneja la ventana, eventos de teclado y mouse, reproduccion de sonido,
+ * transiciones de pantalla y el dibujado de las entidades en la ventana.
+ */
 
+// Pantallas o estados por los que va navegando la interfaz del juego
 enum Pantalla {
     PANTALLA_MENU,
     PANTALLA_REGISTRO,
@@ -20,7 +26,7 @@ enum Pantalla {
     PANTALLA_RANKING
 };
 
-// circulo que crece donde murio un enemigo
+// Estructura visual para hacer una animacion circular cuando eliminamos a un enemigo
 struct Destello {
     float x, y;
     int vida;
@@ -47,23 +53,23 @@ private:
     Pantalla pantalla;
     bool corriendo;
 
-    // registro
+    // Variables para la pantalla de registro
     std::string alias;
     bool aliasEsBot;
     std::string mensaje;
 
-    // controles
+    // Entradas y controles del jugador humano
     bool izquierda, derecha;
     bool usarMouse;
     double anguloMouse;
     Color fase;
     bool pulso;
 
-    // efectos
+    // Efectos visuales y bitacora de eventos
     NodoEvento* ultimoEvento;
     Destello destellos[MAX_DESTELLOS];
 
-    // estadisticas
+    // Punteros para cargar el historial y ranking cuando entramos a sus pantallas
     HistorialPartidas* historial;
     Ranking* ranking;
     std::string nombres[MAX_ALIAS_HISTORIAL];

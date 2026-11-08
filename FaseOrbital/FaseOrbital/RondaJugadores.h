@@ -4,6 +4,7 @@
 
 using namespace std;
 
+// Estructura que mantiene el estado de cada participante en la partida
 struct Jugador {
     string alias;
     bool esBot;
@@ -15,12 +16,14 @@ struct Jugador {
     double anguloNave = 270.0; 
 };
 
+// Nodo para la lista circular doble (enlaza al siguiente y al anterior)
 struct NodoJugador {
     Jugador* jugador;
     NodoJugador* anterior = NULL;
     NodoJugador* siguiente = NULL;
 };
 
+// Lista circular doblemente enlazada para manejar los turnos serpenteantes de los jugadores
 class RondaJugadores {
 private:
     NodoJugador* actual;
@@ -30,14 +33,14 @@ public:
     RondaJugadores();
     ~RondaJugadores();
 
-    //delete porque no es necesario copiar rondas
-    RondaJugadores(const RondaJugadores&) = delete; //manejador de copias
-    RondaJugadores& operator=(const RondaJugadores&) = delete; //operador de asignacion
+    // Regla de Tres: eliminamos copia y asignacion para evitar duplicar referencias de turnos
+    RondaJugadores(const RondaJugadores&) = delete;
+    RondaJugadores& operator=(const RondaJugadores&) = delete;
 
-    // Operaciones principales F
-    void Agregar(Jugador* j);                  // Agrega antes de actual (al "final" de la ronda)
-    void Avanzar(bool horario);               // avanza hacia true = siguiente, false = anterior
-    Jugador* EliminarActual(bool horario);     // Elimina al jugador actual y mueve 'actual' al siguiente según sentido, 
+    // Operaciones principales
+    void Agregar(Jugador* j);                  // Agrega antes de actual (al "final" de la ronda circular)
+    void Avanzar(bool horario);               // Avanza segun el sentido: true = siguiente, false = anterior
+    Jugador* EliminarActual(bool horario);     // Elimina al jugador actual y mueve 'actual' segun el sentido
 
     // Consultas
     Jugador* VerActual() const;

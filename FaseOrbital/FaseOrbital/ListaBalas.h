@@ -1,9 +1,7 @@
 #pragma once
 #include "Globales.h"
 
-
-// --- Lista de balas ---
-
+// Estructura que almacena los datos de una bala disparada por la nave
 struct Bala {
 	double cord_x;
 	double cord_y;
@@ -13,11 +11,13 @@ struct Bala {
 	int duenio;
 };
 
+// Nodo simple para la lista de balas activas en pantalla
 struct NodoBala {
 	Bala bala;
 	NodoBala* siguiente = NULL;
 };
 
+// Lista simplemente enlazada para manejar las balas disparadas
 class ListaBalas {
 
 private:
@@ -25,38 +25,25 @@ private:
     int tam;
 
 public:
-    //Constructor
+    // Constructor: inicializa la lista vacia
     ListaBalas();
 
-    //Destructor
+    // Destructor: recorre y libera toda la memoria de los nodos
     ~ListaBalas();
 
-    //Regla de Tres, se usa delete porque aqui no en necesario complicarse con una copia profunda
-    //constructor de copias
+    // Regla de Tres: borramos el constructor de copia y el operador de asignacion
+    // para evitar que se dupliquen punteros y tengamos problemas de doble liberacion
     ListaBalas(const ListaBalas&) = delete;
-    //operador de asignacion
     ListaBalas& operator=(const ListaBalas&) = delete;
    
-    //metodos
+    // Metodos principales
     void AgregarInicio(NodoBala* nuevo);
     void EliminarSi(bool (*condicion)(Bala));
     void Vaciar();
     
-    //getters
+    // Metodos de consulta (getters)
     int Tamano() const { return tam; }
     bool Vacia() const { return cabeza == NULL; }
     NodoBala* ObtenerCabeza() const { return cabeza; }
     NodoBala** ObtenerPtrCabeza() { return &cabeza; }
 };
-
-
-
-/*uso ejemplo:
-
-	bool balaFueraDelMapa(Bala b) {
-		return (b.cord_x > 320 || b.cord_y > 320);
-	}
-
-	EliminarBalasSi(cabeza_balas, balaFueraDelMapa);
-
-*/

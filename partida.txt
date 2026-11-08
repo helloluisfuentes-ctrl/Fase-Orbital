@@ -1,0 +1,17 @@
+# Script de acciones de ejemplo para Fase Orbital (Seccion 7.3)
+# Formato: jugador oleada tick comando [parametro]
+# Comandos validos: GIRAR_A <grados>, COLOR <C|M|A>, PULSO
+
+Ana 1 60 GIRAR_A 120
+Ana 1 60 COLOR M
+Ana 1 120 GIRAR_A 240
+Ana 1 120 COLOR C
+Ana 1 180 PULSO
+Ana 1 200 GIRAR_A 300
+Ana 1 200 COLOR A
+
+Luis 1 60 GIRAR_A 90
+Luis 1 60 COLOR A
+Luis 1 140 GIRAR_A 180
+Luis 1 140 COLOR M
+Luis 1 200 PULSO

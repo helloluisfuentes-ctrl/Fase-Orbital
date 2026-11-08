@@ -5,6 +5,7 @@
 #include "ColaSpawn.h"
 #include "Oleada.h"
 
+// Clase controladora del flujo de rondas, turnos serpenteantes y estado general de la partida
 class Partida {
 private:
     uint32_t semilla;
@@ -15,33 +16,33 @@ private:
     RondaJugadores ronda;
     ColaSpawn colaMaestraOleada;
     
-    bool sentidoHorario;      // true = horario , false = antihorario 
-    int jugadoresTurnoRestantes; // Cuántos jugadores faltan por jugar en la ronda actual
+    bool sentidoHorario;        // true = horario (siguiente), false = antihorario (anterior)
+    int jugadoresTurnoRestantes; // Conteo de cuantos jugadores vivos faltan por jugar en la ronda actual
     bool terminada;
 
 public:
     Partida(uint32_t semillaPartida, int maxOleadas = 10);
     ~Partida();
 
-    // Registro de participantes 
+    // Registro de participantes
     void RegistrarJugador(Jugador* j);
 
-    // Flujo de la partida
+    // Flujo general de la partida
     void IniciarPartida();
     void IniciarNuevaRonda();
     
-    // Gestión del turno actual
+    // Gestion del turno actual
     Jugador* ObtenerJugadorEnTurno() const;
-    ColaSpawn ObtenerCopiaOleadaActual() const; // Usa constructor de copia profunda
+    ColaSpawn ObtenerCopiaOleadaActual() const; // Utiliza constructor de copia profunda
     void PrepararInicioTurno(Jugador* j);
     void FinalizarTurnoActual(bool sobrevivio);
 
-    // getters
+    // Metodos de consulta (getters)
     bool EstaTerminada() const { return terminada; }
     int ObtenerOleadaActual() const { return oleadaActual; }
     bool EsSentidoHorario() const { return sentidoHorario; }
     int JugadoresActivos() const { return ronda.Tamano(); }
 
-    // Determina el ganador según las reglas oficiales de desempate
+    // Determina el ganador segun las reglas de desempate
     Jugador* DeterminarGanador(Jugador* todosLosRegistrados[], int totalRegistrados) const;
 };

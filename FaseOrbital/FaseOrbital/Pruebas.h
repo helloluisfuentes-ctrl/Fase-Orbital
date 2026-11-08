@@ -1,6 +1,13 @@
 #pragma once
 
-// Declaración de las 14 pruebas oficiales (Sección 10 del PDF)
+/*
+ * Archivo: Pruebas.h
+ * Descripcion: Declaracion de la bateria de 14 pruebas unitarias exigidas en la especificacion.
+ * Cada funcion valida de forma aislada una estructura de datos o mecanica del juego
+ * (listas doblemente enlazadas, colas FIFO, listas circulares, ordenamiento Merge Sort, etc.).
+ */
+
+// Funciones de prueba individuales (P01 a P14)
 bool ProbarP01();
 bool ProbarP02();
 bool ProbarP03();
@@ -16,5 +23,5 @@ bool ProbarP12();
 bool ProbarP13();
 bool ProbarP14();
 
-// Función que corre todas las pruebas y muestra el resumen en consola
+// Ejecuta las 14 pruebas e imprime el reporte de resultados en la consola
 void EjecutarTodasLasPruebas();

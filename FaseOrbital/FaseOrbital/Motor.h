@@ -8,24 +8,26 @@
 #include "BitacoraEventos.h"
 #include "Bot.h"
 
+// Estados posibles que puede devolver el motor tras procesar un tick
 enum EstadoMotor {
 	ESTADO_EN_JUEGO,
 	ESTADO_FIN_OLEADA,
 	ESTADO_JUGADOR_ELIMINADO
 };
 
+// Motor central de fisica, colisiones, aparicion y reglas de juego desacoplado de la interfaz grafica
 class Motor {
 
 private:
-	Jugador* jugador;	// puntero al jugador que esta jugando el turno actualmente
+	Jugador* jugador;	       // Puntero al jugador que tiene el turno activo
 	int NumeroOleada;
 	int tickActual;
-	int siguienteIdEnemigo;		// contador para asignar un id unico a cada enemigo
+	int siguienteIdEnemigo;    // Identificador incremental para cada enemigo nuevo
 
 	ListaEnemigos listaEnemigos;
 	ListaBalas listaBalas;
-	ColaSpawn colaSpawn;	// copia de la oleada actual
-	BitacoraEventos* bitacora; // puntero a la bitacora de la partida
+	ColaSpawn colaSpawn;	   // Copia profunda de la oleada consumida en este turno
+	BitacoraEventos* bitacora; // Puntero a la bitacora de eventos compartida
 
 	bool pulsoActivo;
 	double rDeOndaPulso;
@@ -37,6 +39,7 @@ private:
 	int correctosColor[3];
 	int impactosColor[3];
 
+	// Metodos matematicos y geometricos auxiliares
 	double CalcularGiroNave(double anguloActual, double anguloObjetivo);
 	void PolarACartesiano(double r, double thetaGrados, double& x, double& y) const;
 	double DistanciaMasCorta(double x1, double y1, double x2, double y2) const;
@@ -46,17 +49,17 @@ public:
 	Motor();
 	~Motor();
 
-	// evitar copias del motor
-	Motor(const Motor&) = delete; // evita que se cree un Motor copiando otro
-	Motor& operator=(const Motor&) = delete; // evita que a un Motor se le asigne otro
+	// Regla de Tres: bloqueamos copia y asignacion para evitar duplicar el motor del juego
+	Motor(const Motor&) = delete;
+	Motor& operator=(const Motor&) = delete;
 
-	// inicializacion del turno de un jugador con una oleada
+	// Inicializacion del turno de un jugador con su oleada
 	void IniciarTurno(Jugador* j, int oleada, const ColaSpawn& colaMaestra, BitacoraEventos* bitacoraPartida);
 
-	// ejecuta 1 tick del juego, devolviendo el estado del motor
+	// Procesa 1 tick de simulacion aplicando los 10 pasos obligatorios
 	EstadoMotor ActualizarTick(const AccionTick& accion);
 
-	// Getters
+	// Metodos de consulta (getters)
 	const ListaEnemigos& GetListaEnemigos() const { return listaEnemigos; }
 	const ListaBalas& GetListaBalas() const { return listaBalas; }
 	const ColaSpawn& GetColaSpawn() const { return colaSpawn; }
@@ -73,4 +76,5 @@ public:
 	int GetCorrectosColor(Color c) const { return correctosColor[static_cast<int>(c)]; }
 	int GetImpactosColor(Color c) const { return impactosColor[static_cast<int>(c)]; }
 	int GetMultiplicador() const { return CalcularMultiplicador(jugador ? jugador->combo : 0); }
+};
 };

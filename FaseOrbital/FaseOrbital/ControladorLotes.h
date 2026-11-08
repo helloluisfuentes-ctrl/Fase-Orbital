@@ -2,22 +2,22 @@
 #include <string>
 #include <cstdint>
 
-// Estructura que representa una línea de acción del script 
+// Estructura que representa un comando leido del archivo de script para un tick determinado
 struct AccionScript {
     std::string jugador;
     int oleada;
     int tick;
     std::string comando;   // "COLOR", "GIRAR_A", "PULSO"
-    std::string parametro; // "M", "135", etc. vacío para PULSO
+    std::string parametro; // "M", "135", etc. Vacio para PULSO
 };
 
-// Nodo de la lista enlazada de acciones
+// Nodo simple para almacenar la lista enlazada de acciones del script
 struct NodoAccionScript {
     AccionScript dato;
     NodoAccionScript* siguiente = NULL;
 };
 
-// Lista simplemente enlazada para almacenar las acciones del script 
+// Lista simplemente enlazada para almacenar en memoria las ordenes programadas del script
 class ListaAccionesScript {
 private:
     NodoAccionScript* cabeza;
@@ -28,20 +28,20 @@ public:
     ListaAccionesScript();
     ~ListaAccionesScript();
 
-    // Regla de Tres
+    // Regla de Tres: eliminamos copia y asignacion para evitar duplicar la lista de acciones
     ListaAccionesScript(const ListaAccionesScript&) = delete;
     ListaAccionesScript& operator=(const ListaAccionesScript&) = delete;
 
     void AgregarFinal(const AccionScript& acc);
 
-    // Consulta rápida durante el tick del juego si Hay alguna acción programada para este jugador, oleada y tick?
+    // Busca si existe una accion programada que coincida con el jugador, oleada y tick actual
     bool BuscarAccion(const std::string& jugador, int oleada, int tick, AccionScript& salida) const;
 
     int Tamano() const { return tam; }
     bool Vacia() const { return cabeza == NULL; }
 };
 
-// Parámetros de la línea de comandos
+// Estructura que consolida los parametros pasados por la linea de comandos (CLI)
 struct ConfiguracionLotes {
     bool modoLotes = false;
     bool verRanking = false;
@@ -57,15 +57,16 @@ struct ConfiguracionLotes {
     bool esValido = true;
 };
 
+// Modulo para parsear argumentos de consola y ejecutar la simulacion headless por lotes
 class ControladorLotes {
 public:
     static ConfiguracionLotes ParsearArgumentos(int argc, char* argv[]);
     static void MostrarRankingConsola(const std::string& rutaCSV);
     static void MostrarEstadisticasConsola(const std::string& rutaCSV);
 
-    // Lee el archivo de script línea por línea y llena la lista enlazada de acciones
+    // Lee el archivo de script linea por linea y llena la lista enlazada de acciones
     static bool CargarScript(const std::string& rutaArchivo, ListaAccionesScript& listaDestino);
 
-    // Ejecuta la partida completa en modo por lotes según la especificación (Sección 7.1)
+    // Ejecuta la partida completa en consola sin abrir ventana de Allegro (Seccion 7.1)
     static void EjecutarModoLotes(const ConfiguracionLotes& config);
 };

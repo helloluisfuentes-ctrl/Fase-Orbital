@@ -8,12 +8,12 @@
 #include "RondaJugadores.h"
 #include "Bot.h"
 
-// SesionJuego une la Partida (turnos y oleadas) con el Motor (ticks) y lleva las metricas de cada jugador.
-// NO depende de Allegro: la interfaz grafica la usa, y el modo por lotes tambien la puede usar.
+// Modulo intermediario que conecta la logica de turnos (Partida) con la simulacion de fisica (Motor)
+// Es completamente independiente de Allegro: lo utiliza tanto la interfaz grafica como el modo por lotes.
 
 const int MAX_JUGADORES = 6;
 
-// metricas acumuladas de un jugador durante toda la partida (seccion 6.1)
+// Estructura que acumula todas las metricas de un participante durante la partida completa (seccion 6.1)
 struct MetricasJugador {
     int oleadaAlcanzada = 0;
     int disparos = 0;
@@ -23,16 +23,16 @@ struct MetricasJugador {
     int pulsos = 0;
     int danoTotal = 0;
     int ticks = 0;
-    int bajasTipo[6] = { 0, 0, 0, 0, 0, 0 };   // indice = TipoEnemigo
-    int bajasColor[3] = { 0, 0, 0 };          // indice = Color
-    int danoTipo[6] = { 0, 0, 0, 0, 0, 0 };    // dano recibido por tipo de enemigo
+    int bajasTipo[6] = { 0, 0, 0, 0, 0, 0 };   // Bajas desglosadas por TipoEnemigo
+    int bajasColor[3] = { 0, 0, 0 };          // Bajas desglosadas por Color
+    int danoTipo[6] = { 0, 0, 0, 0, 0, 0 };    // Dano recibido desglosado por TipoEnemigo
     int correctosColor[3] = { 0, 0, 0 };
     int impactosColor[3] = { 0, 0, 0 };
     int posicion = 0;
     bool eliminado = false;
 };
 
-// resumen de un turno (una oleada jugada por un jugador), se calcula recorriendo la bitacora
+// Resumen del turno de una oleada para un jugador, calculado a partir de la bitacora
 struct ResumenOleada {
     std::string alias;
     bool esBot = false;
@@ -47,9 +47,10 @@ struct ResumenOleada {
     bool eliminado = false;
 };
 
+// Clase controladora de la sesion: administra participantes, instancias de partida, motor y persistencia
 class SesionJuego {
 private:
-    Jugador* jugadores[MAX_JUGADORES];      // en el orden en que se registraron (la sesion es la duena de la memoria)
+    Jugador* jugadores[MAX_JUGADORES];      // Arreglo de punteros a jugadores (la sesion es duena de su memoria)
     MetricasJugador metricas[MAX_JUGADORES];
     int totalJugadores;
 
@@ -61,8 +62,8 @@ private:
     int limiteOleadas;
     bool iniciada;
     bool turnoEnCurso;
-    int indiceEnTurno;           // indice en jugadores[] del que esta jugando
-    int orden[MAX_JUGADORES];    // orden[p] = indice del jugador que quedo en la posicion p+1
+    int indiceEnTurno;           // Indice del jugador en turno dentro del arreglo jugadores[]
+    int orden[MAX_JUGADORES];    // orden[p] guarda el indice del jugador que ocupo la posicion p+1
     ResumenOleada ultimoResumen;
 
     int IndiceDe(const Jugador* j) const;
@@ -74,14 +75,14 @@ public:
     SesionJuego();
     ~SesionJuego();
 
-    // no se copia: es duena de jugadores, partida, motor y bitacora
+    // Regla de Tres: bloqueamos copia y asignacion para no duplicar punteros a jugadores ni al motor
     SesionJuego(const SesionJuego&) = delete;
     SesionJuego& operator=(const SesionJuego&) = delete;
 
-    // libera todo y deja la sesion vacia, lista para registrar jugadores otra vez
+    // Libera todos los recursos dinamicos y deja la sesion limpia para registrar nuevos participantes
     void Reiniciar();
 
-    // registro (antes de Iniciar). Un alias que empieza con BOT siempre es bot
+    // Gestion de participantes previa al inicio de la partida
     bool RegistrarJugador(const std::string& alias, bool esBot);
     bool QuitarUltimoJugador();
     bool ExisteAlias(const std::string& alias) const;
@@ -89,18 +90,18 @@ public:
 
     void Iniciar(uint32_t semillaPartida, int maxOleadas);
 
-    // flujo de turnos
-    bool ComenzarTurno();                              // prepara al jugador en turno; false si la partida termino
-    EstadoMotor EjecutarTick(const AccionTick& accion); // un tick del motor
-    AccionTick DecidirAccionBot() const;               // heuristica de la seccion 5.2
-    void CerrarTurno(EstadoMotor estadoFinal);          // acumula metricas y avanza la ronda
-    void Finalizar();                                   // calcula metricas finales y posiciones
+    // Flujo del juego y turnos
+    bool ComenzarTurno();                              // Prepara al participante en turno; retorna false si la partida termino
+    EstadoMotor EjecutarTick(const AccionTick& accion); // Ejecuta un tick en el Motor
+    AccionTick DecidirAccionBot() const;               // Aplica la heuristica fija oficial (seccion 5.2)
+    void CerrarTurno(EstadoMotor estadoFinal);          // Recopila metricas y avanza en la ronda circular
+    void Finalizar();                                   // Calcula metricas consolidadas y posiciones de clasificacion
 
-    // persistencia y reportes
+    // Persistencia y reportes
     bool GuardarHistorial(const std::string& rutaCSV, std::string& mensaje) const;
     void ImprimirLineasTiempo() const;
 
-    // consultas para la vista
+    // Metodos de consulta para las vistas
     bool EstaIniciada() const { return iniciada; }
     bool EstaTerminada() const;
     bool TurnoEnCurso() const { return turnoEnCurso; }
@@ -118,6 +119,5 @@ public:
     const ResumenOleada& GetUltimoResumen() const { return ultimoResumen; }
     double GetPrecision(int i) const { return Precision(i); }
 
-    // indice del jugador que quedo en la posicion p (1 = primero), -1 si no existe
     int GetIndiceEnPosicion(int p) const;
 };

@@ -3,6 +3,7 @@
 #include <string>
 #include "Globales.h"
 
+// Estructura que almacena los detalles de una accion o suceso ocurrido en el juego
 struct Evento {
     int tick;
     int oleada;
@@ -13,11 +14,13 @@ struct Evento {
     int valor;
 };
 
+// Nodo simple para encadenar cronologicamente los eventos
 struct NodoEvento {
     Evento evento;
     NodoEvento* siguiente = NULL;
 };
 
+// Lista simplemente enlazada con punteros a cabeza y cola para registrar la cronologia de la partida
 class BitacoraEventos {
 private:
     NodoEvento* cabeza;
@@ -28,7 +31,7 @@ public:
     BitacoraEventos();
     ~BitacoraEventos();
 
-    // Regla de Tres, bloqueamos copia y asignacion con = delete , no la ocupamos
+    // Regla de Tres: eliminamos copia y asignacion para evitar duplicar nodos de eventos
     BitacoraEventos(const BitacoraEventos&) = delete;
     BitacoraEventos& operator=(const BitacoraEventos&) = delete;
 

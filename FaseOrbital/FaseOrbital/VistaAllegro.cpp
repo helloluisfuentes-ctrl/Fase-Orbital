@@ -6,31 +6,66 @@
 #include <cmath>
 #include <ctime>
 
+/*
+ * Archivo: VistaAllegro.cpp
+ * Descripcion: Implementacion de la interfaz grafica usando Allegro 5.
+ * Mapea las coordenadas polares del juego a coordenadas cartesianas de pantalla,
+ * captura eventos de teclado y mouse, reproduce sonidos segun los eventos de la bitacora
+ * y maneja las transiciones entre el menu, juego, resumen, ranking y estadisticas.
+ */
+
+// Dimensiones de la ventana y centro donde ubicamos el nucleo
 const int ANCHO = 1000;
 const int ALTO = 700;
-const float CX = 500;     // el nucleo se dibuja en el centro de la ventana
+const float CX = 500;
 const float CY = 350;
 const double PI_V = 3.14159265358979;
 const int OLEADAS = 10;
 
-// posiciones de los enemigos antes de cada tick, para dibujar el destello donde murieron
+// Arreglos auxiliares para recordar las posiciones de los enemigos antes de cada tick
+// Con esto podemos dibujar una animacion de destello justo donde murieron
 const int MAX_FOTO = 300;
 static int fotoId[MAX_FOTO];
 static float fotoX[MAX_FOTO], fotoY[MAX_FOTO];
 static Color fotoColor[MAX_FOTO];
 static int totalFoto = 0;
 
+/*
+ * Funcion: ColorFase
+ * Descripcion: Devuelve el color RGB de Allegro asociado a cada color del juego (Cian, Magenta, Ambar).
+ * Entradas: c (Color del enum)
+ * Salidas: Estructura ALLEGRO_COLOR correspondiente
+ */
 static ALLEGRO_COLOR ColorFase(Color c) {
     if (c == CIAN) return al_map_rgb(0, 220, 255);
     if (c == MAGENTA) return al_map_rgb(255, 60, 220);
     return al_map_rgb(255, 180, 0);
 }
 
+/*
+ * Funcion: Blanco
+ * Descripcion: Helper que retorna un color blanco suave para textos y lineas.
+ * Entradas: Ninguna
+ * Salidas: ALLEGRO_COLOR blanco suave
+ */
 static ALLEGRO_COLOR Blanco() { return al_map_rgb(230, 230, 240); }
+
+/*
+ * Funcion: Gris
+ * Descripcion: Helper que retorna un color gris para las orbitas de referencia.
+ * Entradas: Ninguna
+ * Salidas: ALLEGRO_COLOR gris
+ */
 static ALLEGRO_COLOR Gris() { return al_map_rgb(130, 130, 150); }
 
 // ============================== INICIO Y CIERRE ==============================
 
+/*
+ * Funcion: VistaAllegro (Constructor)
+ * Descripcion: Inicializa todos los punteros de Allegro en NULL y setea las variables de control en falso o valores iniciales.
+ * Entradas: Ninguna
+ * Salidas: Instancia de VistaAllegro lista para inicializar
+ */
 VistaAllegro::VistaAllegro() {
     display = NULL;
     timer = NULL;
@@ -62,23 +97,47 @@ VistaAllegro::VistaAllegro() {
     for (int i = 0; i < MAX_DESTELLOS; i++) destellos[i].activo = false;
 }
 
+/*
+ * Funcion: ~VistaAllegro (Destructor)
+ * Descripcion: Libera todas las fuentes, sonidos, cola de eventos y la ventana para evitar fugas de memoria.
+ * Entradas: Ninguna
+ * Salidas: Ninguna
+ */
 VistaAllegro::~VistaAllegro() {
     Liberar();
 }
 
+/*
+ * Funcion: Cargar (Fuente)
+ * Descripcion: Intenta cargar una fuente TrueType desde disco e imprime un aviso si no la encuentra.
+ * Entradas: f (referencia al puntero de la fuente), ruta (ruta del archivo .ttf), tam (tamano en pixeles)
+ * Salidas: Booleano indicando si la carga fue exitosa
+ */
 bool VistaAllegro::Cargar(ALLEGRO_FONT*& f, const char* ruta, int tam) {
     f = al_load_ttf_font(ruta, tam, 0);
     if (f == NULL) std::cout << "Falta el recurso: " << ruta << "\n";
     return f != NULL;
 }
 
+/*
+ * Funcion: Cargar (Sonido)
+ * Descripcion: Intenta cargar un archivo de sonido .wav; si el sistema no tiene audio habilitado, simplemente ignora el fallo.
+ * Entradas: s (referencia al puntero del sample), ruta (ruta del archivo de audio)
+ * Salidas: Booleano indicando si la carga fue exitosa o si se juega en silencio
+ */
 bool VistaAllegro::Cargar(ALLEGRO_SAMPLE*& s, const char* ruta) {
-    if (!hayAudio) return true;   // sin tarjeta de sonido se juega en silencio
+    if (!hayAudio) return true;   // Si no hay tarjeta de sonido permitimos jugar en silencio
     s = al_load_sample(ruta);
     if (s == NULL) std::cout << "Falta el recurso: " << ruta << "\n";
     return s != NULL;
 }
 
+/*
+ * Funcion: Inicializar
+ * Descripcion: Arranca los subsistemas de Allegro (graficos, fuentes, teclado, mouse y sonido) y carga todos los recursos.
+ * Entradas: Ninguna
+ * Salidas: True si se pudo crear la ventana y cargar los archivos necesarios, false de lo contrario
+ */
 bool VistaAllegro::Inicializar() {
     if (!al_init() || !al_init_primitives_addon() || !al_init_font_addon() || !al_init_ttf_addon()
         || !al_install_keyboard() || !al_install_mouse()) {
@@ -112,6 +171,12 @@ bool VistaAllegro::Inicializar() {
     return true;
 }
 
+/*
+ * Funcion: Liberar
+ * Descripcion: Destruye los recursos asignados de Allegro y llama a LiberarHistorial para limpiar memoria dinamica.
+ * Entradas: Ninguna
+ * Salidas: Punteros seteados a NULL
+ */
 void VistaAllegro::Liberar() {
     LiberarHistorial();
     if (sonidoBaja) al_destroy_sample(sonidoBaja);
@@ -136,11 +201,18 @@ void VistaAllegro::Liberar() {
 
 // ============================== BUCLE PRINCIPAL ==============================
 
+/*
+ * Funcion: Ejecutar
+ * Descripcion: Bucle principal que espera eventos de la cola de Allegro (teclas, mouse, reloj) y redibuja la pantalla a 30 FPS.
+ * Entradas: Ninguna
+ * Salidas: Ninguna (corre hasta cerrar la ventana o elegir salir)
+ */
 void VistaAllegro::Ejecutar() {
     corriendo = true;
     bool redibujar = true;
     al_start_timer(timer);
 
+    // Ciclo de eventos principal
     while (corriendo) {
         ALLEGRO_EVENT ev;
         al_wait_for_event(cola, &ev);
@@ -149,7 +221,8 @@ void VistaAllegro::Ejecutar() {
             corriendo = false;
         }
         else if (ev.type == ALLEGRO_EVENT_TIMER) {
-            if (pantalla == PANTALLA_JUEGO) TickJuego();   // un evento = un tick del motor
+            // Cada pulso del temporizador avanza un tick en el motor de juego
+            if (pantalla == PANTALLA_JUEGO) TickJuego();
             for (int i = 0; i < MAX_DESTELLOS; i++) {
                 if (destellos[i].activo && --destellos[i].vida <= 0) destellos[i].activo = false;
             }
@@ -166,14 +239,15 @@ void VistaAllegro::Ejecutar() {
             Caracter(ev.keyboard.keycode, ev.keyboard.unichar);
         }
         else if (ev.type == ALLEGRO_EVENT_MOUSE_AXES && pantalla == PANTALLA_JUEGO) {
+            // Convertimos la posicion del cursor en el angulo polar correspondiente hacia el nucleo
             double dx = ev.mouse.x - CX;
-            double dy = CY - ev.mouse.y;   // en pantalla la y crece hacia abajo
+            double dy = CY - ev.mouse.y;   // Invertimos Y porque en la pantalla los pixeles crecen hacia abajo
             anguloMouse = atan2(dy, dx) * 180.0 / PI_V;
             if (anguloMouse < 0) anguloMouse += 360;
             usarMouse = true;
         }
 
-        // se dibuja solo cuando no quedan eventos pendientes
+        // Redibujamos solo cuando ya procesamos todos los eventos que estaban encolados
         if (redibujar && al_is_event_queue_empty(cola)) {
             redibujar = false;
             Dibujar();
@@ -184,6 +258,12 @@ void VistaAllegro::Ejecutar() {
 
 // ============================== TECLADO ==============================
 
+/*
+ * Funcion: Tecla
+ * Descripcion: Gestiona las pulsaciones de teclas directas segun la pantalla en la que nos encontremos (navegacion, rotacion, cambio de fase).
+ * Entradas: tecla (codigo de tecla de Allegro)
+ * Salidas: Modifica variables de control o cambia de pantalla
+ */
 void VistaAllegro::Tecla(int tecla) {
     bool enter = (tecla == ALLEGRO_KEY_ENTER || tecla == ALLEGRO_KEY_PAD_ENTER);
 
@@ -230,9 +310,14 @@ void VistaAllegro::Tecla(int tecla) {
     }
 }
 
-// menu y registro usan KEY_CHAR. En el registro se escribe el alias: TAB cambia humano/bot, ENTER agrega, ENTER vacio empieza
+/*
+ * Funcion: Caracter
+ * Descripcion: Procesa la entrada de caracteres alfanumericos para escribir el alias de los jugadores y navegar opciones del menu.
+ * Entradas: tecla (codigo de tecla), c (caracter unicode tipeado)
+ * Salidas: Modifica el string de alias, agrega jugadores a la sesion o cambia de pantalla
+ */
 void VistaAllegro::Caracter(int tecla, int c) {
-    // el menu tambien va aqui: si fuera en KEY_DOWN, el '1' llegaria despues como letra del alias
+    // Manejo de opciones numericas en el menu principal
     if (pantalla == PANTALLA_MENU) {
         if (c == '1') {
             sesion.Reiniciar();
@@ -242,11 +327,12 @@ void VistaAllegro::Caracter(int tecla, int c) {
         }
         else if (c == '2') IrA(PANTALLA_ESTADISTICAS);
         else if (c == '3') IrA(PANTALLA_RANKING);
-        else if (c == '4') corriendo = false;   // no se usa ESC: el ESC de otra pantalla llegaria aqui y cerraria el juego
+        else if (c == '4') corriendo = false;
         return;
     }
     if (pantalla != PANTALLA_REGISTRO) return;
 
+    // Manejo de escritura en la pantalla de registro
     if (tecla == ALLEGRO_KEY_ESCAPE) {
         IrA(PANTALLA_MENU);
     }
@@ -262,6 +348,7 @@ void VistaAllegro::Caracter(int tecla, int c) {
                 mensaje = "Agregue al menos un jugador";
                 return;
             }
+            // Obtenemos una semilla dinamica con el tiempo actual para que las partidas sean variadas
             uint32_t semillaPartida = static_cast<uint32_t>(time(NULL));
             sesion.Iniciar(semillaPartida, OLEADAS);
             ultimoEvento = NULL;
@@ -281,12 +368,24 @@ void VistaAllegro::Caracter(int tecla, int c) {
 
 // ============================== FLUJO ==============================
 
+/*
+ * Funcion: IrA
+ * Descripcion: Cambia de pantalla y se encarga de cargar o liberar el historial segun sea necesario.
+ * Entradas: p (Pantalla destino)
+ * Salidas: Actualiza la variable pantalla
+ */
 void VistaAllegro::IrA(Pantalla p) {
     if (p == PANTALLA_ESTADISTICAS || p == PANTALLA_RANKING) CargarHistorial();
     if (p == PANTALLA_MENU) LiberarHistorial();
     pantalla = p;
 }
 
+/*
+ * Funcion: ComenzarTurno
+ * Descripcion: Configura el inicio del turno del jugador actual en la sesion y pasa a la pantalla de juego.
+ * Entradas: Ninguna
+ * Salidas: Modifica el estado interno de la sesion y cambia la pantalla a PANTALLA_JUEGO
+ */
 void VistaAllegro::ComenzarTurno() {
     if (!sesion.ComenzarTurno()) {
         SiguienteTurno();
@@ -299,6 +398,12 @@ void VistaAllegro::ComenzarTurno() {
     IrA(PANTALLA_JUEGO);
 }
 
+/*
+ * Funcion: SiguienteTurno
+ * Descripcion: Verifica si la partida sigue o termino; si termino, guarda el CSV y muestra la pantalla final.
+ * Entradas: Ninguna
+ * Salidas: Transicion a PANTALLA_TURNO o PANTALLA_FIN con guardado de datos
+ */
 void VistaAllegro::SiguienteTurno() {
     if (!sesion.EstaTerminada()) {
         IrA(PANTALLA_TURNO);
@@ -312,11 +417,17 @@ void VistaAllegro::SiguienteTurno() {
 
 // ============================== JUEGO ==============================
 
+/*
+ * Funcion: TickJuego
+ * Descripcion: Ejecuta un ciclo del motor. Obtiene la accion del jugador o bot, aplica el tick, revisa bajas para destellos y suena eventos.
+ * Entradas: Ninguna
+ * Salidas: Actualiza el motor, las listas de balas y enemigos, y cambia a resumen si el turno termino
+ */
 void VistaAllegro::TickJuego() {
     const Motor* motor = sesion.GetMotor();
     const Jugador* j = motor->GetJugador();
 
-    // foto de los enemigos antes del tick
+    // Guardamos una fotografia de los enemigos antes del tick para detectar cuales murieron
     totalFoto = 0;
     for (NodoEnemigo* n = motor->GetListaEnemigos().Primero(); n != NULL && totalFoto < MAX_FOTO; n = n->siguiente) {
         fotoId[totalFoto] = n->enemigo.id;
@@ -325,7 +436,7 @@ void VistaAllegro::TickJuego() {
         totalFoto++;
     }
 
-    // la accion la decide el bot o el teclado/mouse; el motor limita el giro a 6 grados
+    // Calculamos la accion: el bot decide solo, o leemos las teclas/mouse del usuario
     AccionTick accion;
     if (j->esBot) {
         accion = sesion.DecidirAccionBot();
@@ -342,10 +453,11 @@ void VistaAllegro::TickJuego() {
     }
     pulso = false;
 
+    // Ejecutamos el tick del motor y reproducimos los sonidos de nuevos eventos
     EstadoMotor estado = sesion.EjecutarTick(accion);
     LeerEventos();
 
-    // el enemigo que estaba en la foto y ya no esta en la lista, desaparecio: destello
+    // Comparamos con la foto anterior: los que ya no estan en la lista fueron destruidos
     for (int i = 0; i < totalFoto; i++) {
         bool sigue = false;
         for (NodoEnemigo* n = motor->GetListaEnemigos().Primero(); n != NULL; n = n->siguiente) {
@@ -363,13 +475,19 @@ void VistaAllegro::TickJuego() {
         }
     }
 
+    // Si el jugador perdio o completo los ticks de la oleada, pasamos a la pantalla de resumen
     if (estado != ESTADO_EN_JUEGO) {
         sesion.CerrarTurno(estado);
         IrA(PANTALLA_RESUMEN);
     }
 }
 
-// recorre solo los eventos nuevos de la bitacora para poner sonidos
+/*
+ * Funcion: LeerEventos
+ * Descripcion: Recorre los nodos recien agregados a la bitacora de eventos para reproducir los efectos de sonido adecuados.
+ * Entradas: Ninguna
+ * Salidas: Actualiza el puntero ultimoEvento y reproduce sonidos
+ */
 void VistaAllegro::LeerEventos() {
     NodoEvento* n = (ultimoEvento == NULL) ? sesion.GetBitacora()->ObtenerCabeza() : ultimoEvento->siguiente;
     while (n != NULL) {
@@ -383,12 +501,24 @@ void VistaAllegro::LeerEventos() {
     }
 }
 
+/*
+ * Funcion: Sonar
+ * Descripcion: Helper para reproducir un sample de sonido si el sistema de audio esta activo.
+ * Entradas: s (puntero al sample de audio)
+ * Salidas: Reproduccion del audio
+ */
 void VistaAllegro::Sonar(ALLEGRO_SAMPLE* s) {
     if (hayAudio && s != NULL) al_play_sample(s, 0.6f, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
 }
 
 // ============================== HISTORIAL ==============================
 
+/*
+ * Funcion: CargarHistorial
+ * Descripcion: Instancia dinamicamente el historial y ranking para leer el CSV y armar las listas de estadisticas.
+ * Entradas: Ninguna
+ * Salidas: Inicializa los punteros historial y ranking en el heap
+ */
 void VistaAllegro::CargarHistorial() {
     LiberarHistorial();
     historial = new HistorialPartidas();
@@ -399,6 +529,12 @@ void VistaAllegro::CargarHistorial() {
     seleccionado = 0;
 }
 
+/*
+ * Funcion: LiberarHistorial
+ * Descripcion: Libera la memoria dinamica de los objetos HistorialPartidas y Ranking.
+ * Entradas: Ninguna
+ * Salidas: Deja los punteros en NULL y limpia el conteo de nombres
+ */
 void VistaAllegro::LiberarHistorial() {
     delete historial;
     delete ranking;
@@ -409,20 +545,44 @@ void VistaAllegro::LiberarHistorial() {
 
 // ============================== DIBUJO ==============================
 
+/*
+ * Funcion: Polar
+ * Descripcion: Convierte coordenadas polares (radio r y angulo en grados) a coordenadas de pantalla (x, y).
+ * Entradas: r (radio), grados (angulo), x (referencia para salida X), y (referencia para salida Y)
+ * Salidas: Coordenadas de pantalla calculadas en x e y
+ */
 void VistaAllegro::Polar(double r, double grados, float& x, float& y) const {
     double rad = grados * PI_V / 180.0;
     x = CX + static_cast<float>(r * cos(rad));
     y = CY - static_cast<float>(r * sin(rad));
 }
 
+/*
+ * Funcion: Escribir
+ * Descripcion: Dibuja una cadena de texto en pantalla usando la fuente estandar.
+ * Entradas: x, y (posicion), s (texto a dibujar), alineacion (0 = izquierda, alineacion de Allegro)
+ * Salidas: Dibuja el texto en el buffer de la pantalla
+ */
 void VistaAllegro::Escribir(float x, float y, const std::string& s, int alineacion) {
     al_draw_text(fuente, Blanco(), x, y, alineacion, s.c_str());
 }
 
+/*
+ * Funcion: Titulo
+ * Descripcion: Dibuja un texto centrado usando la fuente grande para encabezados de pantallas.
+ * Entradas: y (posicion vertical), s (texto del encabezado)
+ * Salidas: Dibuja el titulo centrado horizontalmente
+ */
 void VistaAllegro::Titulo(float y, const std::string& s) {
     al_draw_text(fuenteGrande, Blanco(), ANCHO / 2, y, ALLEGRO_ALIGN_CENTRE, s.c_str());
 }
 
+/*
+ * Funcion: Dibujar
+ * Descripcion: Funcion principal de renderizado. Evalua la pantalla actual y dibuja la interfaz o elementos graficos correspondientes.
+ * Entradas: Ninguna
+ * Salidas: Dibuja la escena completa en el buffer de Allegro
+ */
 void VistaAllegro::Dibujar() {
     al_clear_to_color(al_map_rgb(10, 10, 25));
 
@@ -510,6 +670,7 @@ void VistaAllegro::Dibujar() {
                 };
                 for (int k = 0; k < 8; k++) Escribir(320, 110 + k * 30.0f, datos[k]);
 
+                // Dibujamos las barras del histograma normalizadas segun el maximo conteo
                 int maximo = 1;
                 for (int k = 0; k < 10; k++) if (r.histograma[k] > maximo) maximo = r.histograma[k];
                 for (int k = 0; k < 10; k++) {
@@ -539,43 +700,49 @@ void VistaAllegro::Dibujar() {
     }
 }
 
+/*
+ * Funcion: DibujarJuego
+ * Descripcion: Dibuja todos los elementos de la simulacion espacial: orbitas, nucleo con arco de salud, onda de pulso, balas, enemigos y la nave.
+ * Entradas: Ninguna
+ * Salidas: Dibuja los graficos del juego activo
+ */
 void VistaAllegro::DibujarJuego() {
     const Motor* motor = sesion.GetMotor();
     const Jugador* j = motor->GetJugador();
 
-    // anillo de orbita y borde de aparicion
+    // Dibujamos el anillo de orbita de la nave y el limite donde aparecen los enemigos
     al_draw_circle(CX, CY, 100, Gris(), 1);
     al_draw_circle(CX, CY, 300, al_map_rgb(50, 50, 70), 1);
 
-    // nucleo con arco de vida
+    // Dibujamos el nucleo central con un arco circular que refleja su porcentaje de vida
     al_draw_filled_circle(CX, CY, 20, al_map_rgb(60, 80, 140));
     float vida = j->vidaNucleo / 100.0f;
     ALLEGRO_COLOR colorVida = vida > 0.5f ? al_map_rgb(80, 220, 120) : al_map_rgb(240, 70, 70);
     if (vida > 0) al_draw_arc(CX, CY, 27, -PI_V / 2, 2 * PI_V * vida, colorVida, 4);
 
-    // onda de pulso
+    // Si el pulso EMP esta expandiendose, dibujamos su onda de choque circular
     if (motor->EsPulsoActivo()) {
         al_draw_circle(CX, CY, static_cast<float>(motor->GetRDeOndaPulso()), Blanco(), 3);
     }
 
-    // balas
+    // Recorremos la lista enlazada simple de balas para dibujarlas en pantalla
     for (NodoBala* b = motor->GetListaBalas().ObtenerCabeza(); b != NULL; b = b->siguiente) {
         al_draw_filled_circle(CX + static_cast<float>(b->bala.cord_x), CY - static_cast<float>(b->bala.cord_y), 3, ColorFase(b->bala.color));
     }
 
-    // enemigos
+    // Recorremos la lista doblemente enlazada de enemigos activos
     for (NodoEnemigo* n = motor->GetListaEnemigos().Primero(); n != NULL; n = n->siguiente) {
         DibujarEnemigo(n->enemigo);
     }
 
-    // destellos de las bajas
+    // Dibujamos los destellos de explosion de los enemigos destruidos recientemente
     for (int i = 0; i < MAX_DESTELLOS; i++) {
         if (destellos[i].activo) {
             al_draw_circle(destellos[i].x, destellos[i].y, 25.0f - destellos[i].vida * 1.5f, ColorFase(destellos[i].color), 2);
         }
     }
 
-    // nave: triangulo que apunta hacia afuera
+    // Calculamos las coordenadas del triangulo de la nave sobre el radio de orbita 100
     float nx, ny, px, py, ax, ay, bx, by;
     Polar(100, j->anguloNave, nx, ny);
     Polar(114, j->anguloNave, px, py);
@@ -584,7 +751,7 @@ void VistaAllegro::DibujarJuego() {
     al_draw_filled_triangle(px, py, ax, ay, bx, by, ColorFase(j->faseColor));
     al_draw_triangle(px, py, ax, ay, bx, by, Blanco(), 1);
 
-    // datos del turno
+    // Dibujamos los datos del turno y los controles en pantalla
     const char* nombresFase[3] = { "Cian", "Magenta", "Ambar" };
     Escribir(20, 20, "Jugador: " + j->alias + (j->esBot ? " (bot)" : ""));
     Escribir(20, 45, "Oleada: " + std::to_string(motor->GetNumeroOleada()));
@@ -597,6 +764,12 @@ void VistaAllegro::DibujarJuego() {
     Escribir(20, ALTO - 30, "Mouse/flechas girar  |  1 2 3 fase  |  ESPACIO pulso  |  P pausa");
 }
 
+/*
+ * Funcion: DibujarEnemigo
+ * Descripcion: Dibuja la figura geometrica especifica de cada enemigo segun su tipo (circulo, triangulo, rectangulo o rombo).
+ * Entradas: e (referencia constante al Enemigo)
+ * Salidas: Dibuja la forma geometrica en la pantalla
+ */
 void VistaAllegro::DibujarEnemigo(const Enemigo& e) {
     float x, y;
     Polar(e.r, e.theta, x, y);
