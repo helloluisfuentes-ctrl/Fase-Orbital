@@ -320,20 +320,22 @@ void ControladorLotes::EjecutarModoLotes(const ConfiguracionLotes& config) {
                     act.activarPulso = false;
 
                     if (tieneScript) {
-                        AccionScript accScript;
-                        if (script.BuscarAccion(jActual->alias, oleadaActual, tickActual, accScript)) {
-                            if (accScript.comando == "COLOR") {
-                                if (accScript.parametro == "M") colorHumano[idxJugador] = MAGENTA;
-                                else if (accScript.parametro == "A") colorHumano[idxJugador] = AMBAR;
-                                else colorHumano[idxJugador] = CIAN;
-                                act.colorObjetivo = colorHumano[idxJugador];
-                            } else if (accScript.comando == "GIRAR_A") {
-                                try {
-                                    anguloHumano[idxJugador] = std::stod(accScript.parametro);
-                                    act.anguloObjetivo = anguloHumano[idxJugador];
-                                } catch (...) {}
-                            } else if (accScript.comando == "PULSO") {
-                                act.activarPulso = true;
+                        for (NodoAccionScript* nodoAcc = script.ObtenerCabeza(); nodoAcc != NULL; nodoAcc = nodoAcc->siguiente) {
+                            if (nodoAcc->dato.jugador == jActual->alias && nodoAcc->dato.oleada == oleadaActual && nodoAcc->dato.tick == tickActual) {
+                                const AccionScript& accScript = nodoAcc->dato;
+                                if (accScript.comando == "COLOR") {
+                                    if (accScript.parametro == "M") colorHumano[idxJugador] = MAGENTA;
+                                    else if (accScript.parametro == "A") colorHumano[idxJugador] = AMBAR;
+                                    else colorHumano[idxJugador] = CIAN;
+                                    act.colorObjetivo = colorHumano[idxJugador];
+                                } else if (accScript.comando == "GIRAR_A") {
+                                    try {
+                                        anguloHumano[idxJugador] = std::stod(accScript.parametro);
+                                        act.anguloObjetivo = anguloHumano[idxJugador];
+                                    } catch (...) {}
+                                } else if (accScript.comando == "PULSO") {
+                                    act.activarPulso = true;
+                                }
                             }
                         }
                     }

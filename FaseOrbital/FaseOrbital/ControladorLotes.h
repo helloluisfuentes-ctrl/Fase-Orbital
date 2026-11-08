@@ -39,6 +39,7 @@ public:
 
     int Tamano() const { return tam; }
     bool Vacia() const { return cabeza == NULL; }
+    NodoAccionScript* ObtenerCabeza() const { return cabeza; }
 };
 
 // Estructura que consolida los parametros pasados por la linea de comandos (CLI)
