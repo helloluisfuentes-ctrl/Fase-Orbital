@@ -8,16 +8,22 @@
 #include "BitacoraEventos.h"
 #include "Bot.h"
 
-// Estados posibles que puede devolver el motor tras procesar un tick
+/*
+ * Archivo: Motor.h
+ * Descripcion: Modulo central que ejecuta las reglas, colisiones y fisica del juego
+ * de manera desacoplada de la interfaz grafica de Allegro.
+ * Sigue un ciclo estricto de 10 pasos por tick (aparicion, cinemática, colisiones,
+ * pulso electromagnetico, limpieza de balas y condiciones de fin de turno).
+ */
+
+// Estados posibles que devuelve el motor tras procesar un tick
 enum EstadoMotor {
 	ESTADO_EN_JUEGO,
 	ESTADO_FIN_OLEADA,
 	ESTADO_JUGADOR_ELIMINADO
 };
 
-// Motor central de fisica, colisiones, aparicion y reglas de juego desacoplado de la interfaz grafica
 class Motor {
-
 private:
 	Jugador* jugador;	       // Puntero al jugador que tiene el turno activo
 	int NumeroOleada;
@@ -76,5 +82,4 @@ public:
 	int GetCorrectosColor(Color c) const { return correctosColor[static_cast<int>(c)]; }
 	int GetImpactosColor(Color c) const { return impactosColor[static_cast<int>(c)]; }
 	int GetMultiplicador() const { return CalcularMultiplicador(jugador ? jugador->combo : 0); }
-};
 };
