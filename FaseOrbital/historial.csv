@@ -1,0 +1,4 @@
+id_partida,semilla,modo,jugador,es_bot,posicion,puntaje,oleada,disparos,correctos,erroneos,combo_max,pulsos,dano_total,ticks,bajas_dron,bajas_girador,bajas_divisor,bajas_mini,bajas_tanque,bajas_camaleon
+1,42,por_turnos,BOT_Alfa,1,1,14900,5,710,92,15,15,1,32,2836,48,9,6,9,8,4
+1,42,por_turnos,BOT_Beta,1,2,14900,5,710,92,15,15,1,32,2836,48,9,6,9,8,4
+1,42,por_turnos,BOT_Gamma,1,3,14900,5,710,92,15,15,1,32,2836,48,9,6,9,8,4

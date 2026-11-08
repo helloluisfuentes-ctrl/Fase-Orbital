@@ -5,6 +5,7 @@ Partida::Partida(uint32_t semillaPartida, int maxOleadas) {
     semilla = semillaPartida;
     oleadaActual = 1;
     limiteOleadas = maxOleadas;
+    totalJugadoresIniciales = 0;
     sentidoHorario = true; // Rondas impares arrancan en sentido horario
     jugadoresTurnoRestantes = 0;
     terminada = false;
@@ -16,6 +17,7 @@ Partida::~Partida() {
 
 void Partida::RegistrarJugador(Jugador* j) {
     ronda.Agregar(j);
+    totalJugadoresIniciales++;
 }
 
 void Partida::IniciarPartida() {
@@ -91,8 +93,8 @@ void Partida::FinalizarTurnoActual(bool sobrevivio) {
 
     // Si todos los jugadores activos ya jugaron esta oleada:
     if (jugadoresTurnoRestantes <= 0) {
-        // La partida termina si queda <= 1 jugador tras completar una ronda
-        if (ronda.Tamano() <= 1 && oleadaActual > 1) {
+        // En multijugador, la partida termina si queda <= 1 jugador tras completar una ronda
+        if (totalJugadoresIniciales > 1 && ronda.Tamano() <= 1) {
             terminada = true;
             return;
         }

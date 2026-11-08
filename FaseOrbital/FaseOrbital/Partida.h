@@ -10,6 +10,7 @@ private:
     uint32_t semilla;
     int oleadaActual;
     int limiteOleadas;
+    int totalJugadoresIniciales;
     
     RondaJugadores ronda;
     ColaSpawn colaMaestraOleada;

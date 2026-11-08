@@ -4,13 +4,13 @@
 #include <allegro5/allegro_acodec.h>
 #include <iostream>
 #include <cmath>
+#include <ctime>
 
 const int ANCHO = 1000;
 const int ALTO = 700;
 const float CX = 500;     // el nucleo se dibuja en el centro de la ventana
 const float CY = 350;
 const double PI_V = 3.14159265358979;
-const uint32_t SEMILLA = 42;
 const int OLEADAS = 10;
 
 // posiciones de los enemigos antes de cada tick, para dibujar el destello donde murieron
@@ -262,7 +262,8 @@ void VistaAllegro::Caracter(int tecla, int c) {
                 mensaje = "Agregue al menos un jugador";
                 return;
             }
-            sesion.Iniciar(SEMILLA, OLEADAS);
+            uint32_t semillaPartida = static_cast<uint32_t>(time(NULL));
+            sesion.Iniciar(semillaPartida, OLEADAS);
             ultimoEvento = NULL;
             IrA(PANTALLA_TURNO);
             return;
@@ -450,8 +451,9 @@ void VistaAllegro::Dibujar() {
             const Jugador* j = sesion.GetJugadorEnTurno();
             Titulo(200, "Oleada " + std::to_string(sesion.GetOleadaActual()));
             Titulo(260, "Turno de " + j->alias);
-            Escribir(ANCHO / 2, 330, sesion.EsSentidoHorario() ? "Ronda en sentido horario" : "Ronda en sentido antihorario", ALLEGRO_ALIGN_CENTRE);
-            Escribir(ANCHO / 2, 400, "Presione ENTER", ALLEGRO_ALIGN_CENTRE);
+            Escribir(ANCHO / 2, 310, "Semilla: " + std::to_string(sesion.GetSemilla()), ALLEGRO_ALIGN_CENTRE);
+            Escribir(ANCHO / 2, 340, sesion.EsSentidoHorario() ? "Ronda en sentido horario" : "Ronda en sentido antihorario", ALLEGRO_ALIGN_CENTRE);
+            Escribir(ANCHO / 2, 410, "Presione ENTER", ALLEGRO_ALIGN_CENTRE);
             break;
         }
 
@@ -586,6 +588,7 @@ void VistaAllegro::DibujarJuego() {
     const char* nombresFase[3] = { "Cian", "Magenta", "Ambar" };
     Escribir(20, 20, "Jugador: " + j->alias + (j->esBot ? " (bot)" : ""));
     Escribir(20, 45, "Oleada: " + std::to_string(motor->GetNumeroOleada()));
+    Escribir(ANCHO - 20, 20, "Semilla: " + std::to_string(sesion.GetSemilla()), ALLEGRO_ALIGN_RIGHT);
     Escribir(20, 70, "Puntaje: " + std::to_string(j->puntaje));
     Escribir(20, 95, "Multiplicador: x" + std::to_string(motor->GetMultiplicador()));
     Escribir(20, 120, "Nucleo: " + std::to_string(j->vidaNucleo));
