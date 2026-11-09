@@ -1,16 +1,25 @@
 #include "ColaSpawn.h"
 
-//constructor
-ColaSpawn::ColaSpawn(){
+/*
+ * Funcion: Constructor ColaSpawn
+ * Descripcion: Inicializa la cola de apariciones vacia con cabeza y cola en NULL y contador en cero.
+ * Entradas: Ninguna
+ * Salidas: Instancia creada
+ */
+ColaSpawn::ColaSpawn() {
 	cabeza = NULL;
 	cola = NULL;
 	tam = 0;
 }
 
-
-
-//destructor
+/*
+ * Funcion: Destructor ~ColaSpawn
+ * Descripcion: Desencola y libera toda la memoria dinamica de los nodos hasta dejar la cola vacia.
+ * Entradas: Ninguna
+ * Salidas: Memoria liberada
+ */
 ColaSpawn::~ColaSpawn() {
+	// Recorremos con un auxiliar liberando nodo a nodo
 	NodoSpawn* aux = cabeza;
 	while (aux != NULL) {
 		cabeza = cabeza->siguiente;
@@ -20,59 +29,70 @@ ColaSpawn::~ColaSpawn() {
 	tam = 0;
 }
 
-
-
-//Constructor de copia
+/*
+ * Funcion: Constructor de copia ColaSpawn
+ * Descripcion: Realiza una copia profunda de todos los nodos de 'otra' cola para que cada jugador
+ *              tenga su propia instancia sin compartir memoria.
+ * Entradas: const ColaSpawn& otra (referencia a la cola que queremos clonar)
+ * Salidas: Nueva cola identica pero con nodos independientes en memoria
+ */
 ColaSpawn::ColaSpawn(const ColaSpawn& otra) {
-    //inicializar cola
     cabeza = NULL;
-    cola = cabeza = NULL;
+    cola = NULL;
     tam = 0;
 
+    // Recorremos la cola original y encolamos cada elemento creando nodos nuevos
     NodoSpawn* aux = otra.cabeza;
-
-    //Copiar la cola nodo por nodo
     while (aux != NULL) {
         Encolar(aux->dato);
         aux = aux->siguiente;
     }
 }
 
-//operador de asignacion
+/*
+ * Funcion: Operador de asignacion operator=
+ * Descripcion: Limpia la memoria actual y copia profundamente los nodos de la otra cola, evitando autoasignacion.
+ * Entradas: const ColaSpawn& otra (cola a asignar)
+ * Salidas: Referencia a nosotros mismos (*this)
+ */
 ColaSpawn& ColaSpawn::operator=(const ColaSpawn& otra) {
-    //Evitar auto-asignación 
+    // Si intentamos asignarnos a nosotros mismos, no hacemos nada para no destruir nuestros datos
     if (this == &otra) {
         return *this;
     }
 
-    //Limpiar la memoria que ya teníamos 
+    // Vaciamos los nodos que teniamos actualmente antes de copiar los nuevos
     NodoSpawn* actual = cabeza;
     while (actual != NULL) {
         cabeza = cabeza->siguiente;
-        delete (actual);
+        delete actual;
         actual = cabeza;
     }
     cola = NULL;
     tam = 0;
 
-    //Copiar profundamente los nodos de 'otra'
+    // Copiamos los nodos de la otra cola uno por uno
     NodoSpawn* aux = otra.cabeza;
     while (aux != NULL) {
         Encolar(aux->dato);
         aux = aux->siguiente;
     }
 
-    //Retornar la referencia a nosotros mismos
     return *this;
 }
 
-
-// añade al final
+/*
+ * Funcion: Encolar
+ * Descripcion: Inserta un nuevo elemento al final de la cola en O(1) usando el puntero cola.
+ * Entradas: const Spawn& s (datos de aparicion del enemigo)
+ * Salidas: Cola con el nuevo nodo al final
+ */
 void ColaSpawn::Encolar(const Spawn& s) {
     NodoSpawn* nuevo = new NodoSpawn();
     nuevo->dato = s;
-    nuevo->siguiente = nullptr;
+    nuevo->siguiente = NULL;
 
+    // Si estaba vacia, la cabeza y la cola son el mismo nodo nuevo
     if (Vacia()) {
         cabeza = nuevo;
         cola = nuevo;
@@ -84,20 +104,25 @@ void ColaSpawn::Encolar(const Spawn& s) {
     tam++;
 }
 
-
-// devuelve el primer nodo en "Out"
+/*
+ * Funcion: Desencolar
+ * Descripcion: Extrae el elemento del frente de la cola en O(1), copia su valor en 'out' y libera el nodo.
+ * Entradas: Spawn& out (referencia donde se guarda el dato extraido)
+ * Salidas: Retorna true si se pudo desencolar, false si la cola estaba vacia
+ */
 bool ColaSpawn::Desencolar(Spawn& out) {
-
     if (Vacia()) {
         return false;
     }
 
+    // Copiamos el dato del frente, avanzamos la cabeza y borramos el nodo extraido
     out = cabeza->dato;
     NodoSpawn* aux = cabeza;
     cabeza = cabeza->siguiente;
-    delete(aux);
+    delete aux;
     tam--;
 
+    // Si la cola se quedo sin nodos, reiniciamos el puntero cola a NULL
     if (Vacia()) {
         cola = NULL;
     }
@@ -105,13 +130,16 @@ bool ColaSpawn::Desencolar(Spawn& out) {
     return true;
 }
 
-//manda un solo leer del primer nodo
+/*
+ * Funcion: VerFrente
+ * Descripcion: Permite consultar el dato del primer nodo sin sacarlo de la cola.
+ * Entradas: Ninguna
+ * Salidas: Puntero constante al Spawn del frente o NULL si la cola esta vacia
+ */
 const Spawn* ColaSpawn::VerFrente() const {
     if (Vacia()) {
         return NULL;
     }
 
-    Spawn* aux;
-    aux = &cabeza->dato;
-    return aux;
+    return &cabeza->dato;
 }

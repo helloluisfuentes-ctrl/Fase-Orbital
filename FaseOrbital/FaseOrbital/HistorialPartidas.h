@@ -2,6 +2,7 @@
 #include <string>
 #include <cstdint>
 
+// Estructura que almacena los 21 campos requeridos por el archivo historial.csv
 struct RegistroPartida {
     int idPartida;
     uint32_t semilla;
@@ -26,18 +27,19 @@ struct RegistroPartida {
     int bajasCamaleon;
 };
 
-//lista auxiliar para el merge sort
+// Nodo simple para la lista auxiliar de puntajes que ordenamos con Merge Sort
 struct NodoPuntaje {
     int valor;
     NodoPuntaje* siguiente = NULL;
 };
 
+// Lista enlazada auxiliar utilizada para ordenar puntajes y calcular la mediana sin usar arreglos
 class ListaPuntajes {
 private:
     NodoPuntaje* cabeza;
     int tam;
 
-    //metodos auxiliares para el merge sort
+    // Metodos auxiliares para la recursion del Merge Sort
     NodoPuntaje* Dividir(NodoPuntaje* fuente);
     NodoPuntaje* Fusionar(NodoPuntaje* a, NodoPuntaje* b);
     NodoPuntaje* MergeSortRec(NodoPuntaje* nodo);
@@ -46,7 +48,7 @@ public:
     ListaPuntajes();
     ~ListaPuntajes();
 
-    //metodos
+    // Metodos principales
     void InsertarFinal(int valor);
     void MergeSort();
     double ObtenerMediana() const;
@@ -55,13 +57,15 @@ public:
     NodoPuntaje* ObtenerCabeza() const { return cabeza; }
 };
 
-//========================================================================================================
+// ========================================================================================================
 
+// Nodo simple para almacenar cada registro cargado o guardado del historial
 struct NodoRegistro {
     RegistroPartida registro;
     NodoRegistro* siguiente = NULL;
 };
 
+// Lista simplemente enlazada para gestionar la persistencia y lectura de partidas en CSV
 class HistorialPartidas {
 private:
     NodoRegistro* cabeza;
@@ -72,6 +76,7 @@ public:
     HistorialPartidas();
     ~HistorialPartidas();
 
+    // Regla de Tres: eliminamos copia y asignacion para evitar duplicar la lista de registros
     HistorialPartidas(const HistorialPartidas&) = delete;
     HistorialPartidas& operator=(const HistorialPartidas&) = delete;
 
@@ -80,9 +85,9 @@ public:
     bool GuardarCSV(const std::string& rutaArchivo) const;
 
     void CopiarPuntajes(const std::string& aliasJugador, ListaPuntajes& destino) const;
-
     void GenerarReporteJugador(const std::string& aliasJugador) const;
 
     int Tamano() const { return tam; }
     bool Vacia() const { return cabeza == NULL; }
+    NodoRegistro* ObtenerCabeza() const { return cabeza; }
 };
